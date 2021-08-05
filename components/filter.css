@@ -1,0 +1,95 @@
+:root{
+    --highlight:  #d49c6b;
+    --base:  #f6fafb;
+    --background: #252b31;
+}
+
+@font-face {
+    font-family: "Kosugi";
+    src: url("../renderer/styles/fonts/Kosugi-Regular.ttf");
+}
+
+@font-face {
+    font-family: "Roboto";
+    src: url("../renderer/styles/fonts/Roboto-Regular.ttf");
+}
+/* //////////////// Filter CSS //////////////////////// */
+* {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+#main {
+    background-color: var(--base);
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+#top-border {
+    height: 20px;
+    width: 100%;
+    background-color: var(--highlight);
+    -webkit-app-region: drag;
+}
+
+#filter {
+    height: 100%;
+    width: 100%;
+    background-color: var(--base);
+}
+
+#filter h1 {
+    -webkit-user-select: none;
+    user-select: none;
+    background-color: inherit;
+    color: var(--background);
+    letter-spacing: 1px;
+    text-align: center;
+    border-bottom: 1px solid var(--highlight);
+}
+
+#filter div {
+    margin: 0 6px;
+    padding: 4px 0;
+    background-color: inherit;
+    border-bottom: 1px solid var(--highlight);
+}
+
+#filter button {
+    letter-spacing: 1px;
+    background-color: var(--base);
+    text-align: left;
+    padding: 4px 0;
+    width: 100%;
+    font-family: 'Kosugi', sans-serif;
+    font-size: 1.5rem;
+    color: var(--background);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#close-filter {
+    background-color: var(--base);
+    color: var(--background);
+    text-align: center;
+    font-size: 2rem;
+    margin: 8px;
+    padding: 4px;
+    border-bottom: 3px solid var(--highlight);
+    justify-self: flex-end;
+    align-self: center;
+    transition: all 0.3s ease;
+}
+
+/* /////////////// Filter Button Active CSS ///////////////// */
+#filter button:hover, #filter button.active {
+    background-color: var(--highlight);
+    color: var(--base);
+}
+
+#close-filter:hover {
+    border: 3px solid var(--highlight);
+}

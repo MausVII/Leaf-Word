@@ -1,0 +1,57 @@
+:root{
+    --highlight:  #d49c6b;
+    --base:  #f6fafb;
+    --background: #252b31;
+}
+
+@font-face {
+    font-family: "Kosugi";
+    src: url("../../renderer/styles/fonts/Kosugi-Regular.ttf");
+}
+
+@font-face {
+    font-family: "Roboto";
+    src: url("../../renderer/styles/fonts/Roboto-Regular.ttf");
+}
+/* //////////////// Filter CSS //////////////////////// */
+* {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background-color: var(--base);
+}
+
+#main {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--base);
+    border-top: 20px solid var(--highlight);
+}
+
+p {
+    padding: 4px;
+    background-color: var(--base);
+    color: var(--background);
+    font-family: 'Kosugi', sans-serif;
+    font-size: 1em;
+}
+
+button {
+    padding: 3px 10px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    background-color: var(--base);
+    color: var(--background);
+    margin: 10px;
+    text-align: center;
+    font-size: 2rem;
+    border-bottom: 3px solid var(--highlight);
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    border: 3px solid var(--highlight);
+}

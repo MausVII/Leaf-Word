@@ -1,0 +1,249 @@
+
+:root{
+    --highlight:  #d49c6b;
+    --base:  #f6fafb;
+    --background: #252b31;
+}
+
+@font-face {
+    font-family: "Kosugi";
+    src: url("./fonts/Kosugi-Regular.ttf");
+}
+
+@font-face {
+    font-family: "Roboto";
+    src: url("./fonts/Roboto-Regular.ttf");
+}
+
+/* /////////////// General CSS ///////////////// */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background);
+    text-decoration: none;
+    font-family: "Roboto", sans-serif;
+    list-style: none;
+}
+
+button {
+    padding: 3px 10px;
+    letter-spacing: 1px;
+    border: none;
+    background-color: var(--base);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* /////////////// Header CSS ///////////////// */
+header {
+    margin-top: 15px;
+    display: flex;
+}
+
+.nav-elements {
+    height: 5vh;
+    width: 85vw;
+    display: flex;
+    justify-content: flex-start;
+    border-bottom: 3px solid var(--highlight);
+    align-items: flex-end;
+}
+
+#icon-title {
+    text-align: center;
+    height: 5vh;
+    width: 15vw;
+    padding: 0 1vw;
+    color: var(--base);
+    font-size: 2rem;
+    border-bottom: 3px solid var(--highlight);
+}
+
+.nav-elements button {
+    border-bottom: 10px solid var(--background);
+    padding: 4px 6px;
+    margin: 0 1vw;
+}
+
+/* /////////////// Cards CSS ///////////////// */
+#main {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 2vw 4vh;
+}
+
+#cards {
+    overflow: hidden;
+    position: relative;
+}
+
+#card-front, #card-back {
+    height: 80vh;
+    width: 400px;
+    position: relative;
+    background-color: var(--base);
+    border-top: 20px solid var(--highlight);
+    padding: 0 10px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+#card-front {
+    left: -100%;
+}
+
+#card-back {
+    justify-content: space-between;
+    position: absolute;
+    top: 0;
+    left: 100%;
+}
+
+
+
+/* /////////////// Cards Details CSS ///////////////// */
+#card-front h1 {
+    background-color: inherit;
+    color: var(--background);
+    font-size: 8rem;
+    writing-mode: vertical-lr;
+}
+
+#word-info {
+    background-color: inherit;
+}
+
+#card-back input {
+    width: 100%;
+    background-color: var(--base);
+    border: none;
+    border-bottom: 1px solid var(--highlight);
+    padding: 10px;
+    color: var(--background);
+}
+
+#card-back #word {
+    text-align: right;
+    font-size: 2rem;
+}
+
+#card-back #classification {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: right;
+}
+
+#card-back #hiragana {
+    text-align: center;
+    font-family: 'Kosugi', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 1px;
+}
+
+#card-back #pitch_div {
+    width: 100%;
+    background-color: var(--base);
+    border-bottom: 1px solid var(--highlight);
+    color: var(--background);
+    padding: 10px;
+    list-style: none;
+    display: flex;
+    justify-content: center;
+}
+
+#card-back #pitch_div span {
+    background-color: var(--base);
+    font-family: 'Kosugi', sans-serif;
+    font-size: 20px;
+    padding: 0.5px;
+}
+
+#lan-switch {
+    padding: 5px;
+    display: flex;
+    flex-direction: row-reverse;
+    background-color: var(--base);
+}
+
+#EN-switch, #JP-switch{
+    transition: all .3s ease-out;
+    margin: 0;
+    padding: 3px 5px;
+    border: 1px solid var(--background);
+    font-weight: bold;
+}
+
+#EN-switch {
+    border-radius: 0 5px 5px 0;
+    transition: all 0.3s ease;
+}
+
+#JP-switch {
+    border-radius: 5px 0 0 5px;
+    transition: all 0.3s ease;
+}
+
+#EN-switch.active, #JP-switch.active {
+    background-color: var(--highlight);
+    color: var(--base);
+} 
+
+#card-back #definition {
+    background-color: var(--base);
+    resize: none;
+    /* width: 100%; */
+    height: 38vh; 
+    overflow: auto;
+    border: none;
+    font-family: 'Kosugi', sans-serif;
+    font-size: 1.5em;
+}
+
+#card-back #back-btns {
+    background-color: inherit;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.card-btn {
+    background-color: var(--base);
+    color: var(--background);
+    margin: 10px;
+    text-align: center;
+    font-size: 2rem;
+    border-bottom: 3px solid var(--highlight);
+}
+
+/* /////////////// Header Hover CSS ///////////////// */
+
+.nav-elements button:hover {
+    color: var(--base);
+    background-color: var(--highlight);
+    border-bottom: 10px solid var(--highlight);
+}
+
+.card-btn:hover {
+    border: 3px solid var(--highlight);
+}
+
+input:focus {
+    border: none;
+}
+
+/* /////////////// Card Flip CSS ///////////////// */
+#card-front.active {
+    transform: translateX(100%);
+}
+
+#card-back.active {
+    transform: translateX(-100%);
+}

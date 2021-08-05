@@ -1,0 +1,24 @@
+{
+  "name": "leaf-word",
+  "version": "0.1.0",
+  "description": "App for studying Japanese vocabulary",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "watch": "nodemon --exec electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "leaf-word"
+  },
+  "author": "Adeptus",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^13.1.4",
+    "nodemon": "^2.0.9"
+  },
+  "dependencies": {
+    "electron-window-state": "^5.0.3",
+    "nedb": "^1.8.0"
+  }
+}
