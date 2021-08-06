@@ -88,62 +88,83 @@ function createWindow() {
 }
 
 ipcMain.on('new-card', (e, card) => {
-    dictionary.insert(card, (err, doc) => {
-        console.log("Inserted: ", doc.kanji)
-        if(err) {
-            console.log(err)
+    console.log(card)
+    dictionary.find({kanji: card.kanji}, (error, cards) => {
+        console.log(typeof(cards))
+        // If the card already exists, create a new one
+        if(cards.length === 0) {
+            console.log('Card already exists')
+
+            dictionary.insert(card, (err, doc) => {
+                console.log("Inserted: ", doc.kanji)
+                if(err) {
+                    console.log(err)
+                }
+            })
+        
+            temp_card = {
+                word: card.kanji,
+                _id: card._id
+            }
+        
+            if (card.classification.includes('名')) {
+                noun_dic.insert(temp_card, (err, doc) => {
+                    console.log("Inserted: ", doc.word, "into nouns.")
+                    if(err) {
+                        console.log(err)
+                    }
+                })
+            }
+        
+            if (card.classification.includes('五') || card.classification.includes('一')) {
+                verb_dic.insert(temp_card, (err, doc) => {
+                    console.log("Inserted: ", doc.word, "into verbs.")
+                    if(err) {
+                        console.log(err)
+                    }
+                })
+            }
+        
+            if (card.classification.includes('形')) {
+                adjective_dic.insert(temp_card, (err, doc) => {
+                    console.log("Inserted: ", doc.word, "into adjectives.")
+                    if(err) {
+                        console.log(err)
+                    }
+                })
+            }
+        
+            if (card.classification.includes('副')) {
+                adverb_dic.insert(temp_card, (err, doc) => {
+                    console.log("Inserted: ", doc.word, "into adverbs.")
+                    if(err) {
+                        console.log(err)
+                    }
+                })
+            }
+        
+            if (card.classification.includes('四字熟語')) {
+                yoji_dic.insert(temp_card, (err, doc) => {
+                    console.log("Inserted: ", doc.word, "into yojis.")
+                    if(err) {
+                        console.log(err)
+                    }
+                })
+            }
         }
-    })
-
-    temp_card = {
-        word: card.kanji,
-        _id: card._id
-    }
-
-    if (card.classification.includes('名')) {
-        noun_dic.insert(temp_card, (err, doc) => {
-            console.log("Inserted: ", doc.word, "into nouns.")
-            if(err) {
-                console.log(err)
-            }
-        })
-    }
-
-    if (card.classification.includes('五') || card.classification.includes('一')) {
-        verb_dic.insert(temp_card, (err, doc) => {
-            console.log("Inserted: ", doc.word, "into verbs.")
-            if(err) {
-                console.log(err)
-            }
-        })
-    }
-
-    if (card.classification.includes('形')) {
-        adjective_dic.insert(temp_card, (err, doc) => {
-            console.log("Inserted: ", doc.word, "into adjectives.")
-            if(err) {
-                console.log(err)
-            }
-        })
-    }
-
-    if (card.classification.includes('副')) {
-        adverb_dic.insert(temp_card, (err, doc) => {
-            console.log("Inserted: ", doc.word, "into adverbs.")
-            if(err) {
-                console.log(err)
-            }
-        })
-    }
-
-    if (card.classification.includes('四字熟語')) {
-        yoji_dic.insert(temp_card, (err, doc) => {
-            console.log("Inserted: ", doc.word, "into yojis.")
-            if(err) {
-                console.log(err)
-            }
-        })
-    }
+        else {
+            console.log("Found match: ")
+            console.log(card)
+            dictionary.update({kanji: cards[0].kanji}, card, {}, (err, numReplaced) => {
+                if(err) {
+                    console.log(err)
+                } else {
+                    console.log("Replaced: ", numReplaced)
+                }
+            })
+        }
+    }) 
+    
 }) 
 
 ipcMain.on('card-request', (err, card) => {

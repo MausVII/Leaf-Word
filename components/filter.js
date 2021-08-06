@@ -8,7 +8,6 @@ const adverb_btn = document.querySelector('#adverb-filter')
 const yoji_btn = document.querySelector('#yoji-filter')
 
 let filter = ""
-let previous = ""
 
 ;(() => {
     console.log("Request filter")
