@@ -4,6 +4,7 @@ const windowStatekeeper = require('electron-window-state')
 
 // Dictionary database of all words
 let dictionary;
+let new_dic;
 // String that represents the current filter
 let filter = ""
 // List of all verbs in dictionary, contains kanji and id
@@ -38,11 +39,19 @@ function createWindow() {
         }
     })
 
-    mainWindow.loadFile('renderer/index.html');
+    // components/browse/browse.html
+    // ./renderer/index.html
+    mainWindow.loadFile('./renderer/index.html');
 
     // Load dictionary
     dictionary = new DataStore({filename: `${app.getPath('userData')}/dictionary`, autoload: true});
     console.log(`${app.getPath('userData')}/dictionary`)
+
+    new_dic = new DataStore({filename: "./data/dictionary",
+                            timestampData: true,
+                            autoload: true,
+                            })
+
     dictionary.ensureIndex({fieldName: 'kanji', unique: true})
     noun_dic = new DataStore({filename: `${app.getPath('userData')}/nouns`, autoload: true});
     noun_dic.ensureIndex({fieldname: 'word', unique: true})
@@ -72,12 +81,34 @@ function createWindow() {
                 var skipCount = Math.floor(Math.random() * count);
 
                 console.log(`${app.getPath('userData')}/dictionary`)
+                dictionary.count({}, (error, count) => {
+                    if(!error) {
+                        mainWindow.webContents.send('kanji-count', count)
+                    } else {
+                        console.log(error)
+                    }
+                })
+                
                
                 dictionary.find({kanji: '縛る'}, function (err2, docs) {
                     if (!err2) {
+                        // let new_doc = {
+                        //     kanji: docs[0].kanji,
+                        //     variants: [],
+                        //     hiragana: docs[0].hiragana,
+                        //     tags: docs[0].classification,
+                        //     pitch: [docs[0].pitch[0], docs[0].pitch[1], docs[0].pitch[1]],
+                        //     eng_def: [docs[0].en[0]],
+                        //     jap_def: [docs[0].jp[0]],
+                        //     priority: 0
+                        // }
+                        // new_dic.insert(new_doc, (error, newDoc) => {
+                        //     console.log('Inserted: ', newDoc)
+                        // })
                         mainWindow.webContents.send('card-delivery', docs[0])
                     }
                 });
+
             }
           });
     })
@@ -88,163 +119,190 @@ function createWindow() {
 }
 
 ipcMain.on('new-card', (e, card) => {
-    console.log(card)
-    dictionary.find({kanji: card.kanji}, (error, cards) => {
-        console.log(typeof(cards))
-        // If the card already exists, create a new one
-        if(cards.length === 0) {
-            console.log('Card already exists')
-
-            dictionary.insert(card, (err, doc) => {
-                console.log("Inserted: ", doc.kanji)
-                if(err) {
-                    console.log(err)
+    dictionary.findOne({kanji: card.kanji}, (error, result) => {
+        if (result) {
+            // Card already exists
+            dictionary.update({kanji: card.kanji}, card, {}, (error, numReplaced) => {
+                if(!error) {
+                    console.log(`Updated ${numReplaced} card.`)
+                    mainWindow.webContents.send('card-delivery', card)
                 }
             })
-        
-            temp_card = {
-                word: card.kanji,
-                _id: card._id
-            }
-        
-            if (card.classification.includes('名')) {
-                noun_dic.insert(temp_card, (err, doc) => {
-                    console.log("Inserted: ", doc.word, "into nouns.")
-                    if(err) {
-                        console.log(err)
-                    }
-                })
-            }
-        
-            if (card.classification.includes('五') || card.classification.includes('一')) {
-                verb_dic.insert(temp_card, (err, doc) => {
-                    console.log("Inserted: ", doc.word, "into verbs.")
-                    if(err) {
-                        console.log(err)
-                    }
-                })
-            }
-        
-            if (card.classification.includes('形')) {
-                adjective_dic.insert(temp_card, (err, doc) => {
-                    console.log("Inserted: ", doc.word, "into adjectives.")
-                    if(err) {
-                        console.log(err)
-                    }
-                })
-            }
-        
-            if (card.classification.includes('副')) {
-                adverb_dic.insert(temp_card, (err, doc) => {
-                    console.log("Inserted: ", doc.word, "into adverbs.")
-                    if(err) {
-                        console.log(err)
-                    }
-                })
-            }
-        
-            if (card.classification.includes('四字熟語')) {
-                yoji_dic.insert(temp_card, (err, doc) => {
-                    console.log("Inserted: ", doc.word, "into yojis.")
-                    if(err) {
-                        console.log(err)
-                    }
-                })
-            }
-        }
-        else {
-            console.log("Found match: ")
-            console.log(card)
-            dictionary.update({kanji: cards[0].kanji}, card, {}, (err, numReplaced) => {
-                if(err) {
-                    console.log(err)
+        } else {
+            // New card
+            dictionary.insert(card, (error, doc) => {
+                if(!error) {
+                    console.log('Inserted new card: ', doc)
+                    mainWindow.webContents.send('card-delivery', doc)
                 } else {
-                    console.log("Replaced: ", numReplaced)
+                    console.log(error)
                 }
             })
         }
-    }) 
-    
+    })
 }) 
 
-ipcMain.on('card-request', (err, card) => {
-    dictionary.count({}, function (err, count) {
-        if (!err && count > 0) {
-            // count is the number of docs
-            if(filter !== "") {
-                switch (filter) {
-                    case "noun":
-                        noun_dic.count({}, (err, count_n) => {
-                            var skipCount = Math.floor(Math.random() * count_n);
-                            // Pick random card in nouns
-                            noun_dic.find().skip(skipCount).limit(1).exec((err, filtered_cards) => {
-                                // Find that same card in dictionary, since nouns only contains the word and id
-                                dictionary.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
-                                    mainWindow.webContents.send('card-delivery', card)
-                                })
-                            })
-                        })
-                        break
-                    case "verb":
-                        verb_dic.count({}, (err, count_v) => {
-                            var skipCount = Math.floor(Math.random() * count_v);
-                            // Pick random card in adjectives
-                            verb_dic.find().skip(skipCount).limit(1).exec((err, filtered_cards) => {
-                                // Find that same card in dictionary, since adjectives only contains the word and id
-                                dictionary.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
-                                    mainWindow.webContents.send('card-delivery', card)
-                                })
-                            })
-                        })
-                        break
-                    case "adjective":
-                        adjective_dic.count({}, (err, count_adj) => {
-                            var skipCount = Math.floor(Math.random() * count_adj);
-                            // Pick random card in adjectives
-                            adjective_dic.find().skip(skipCount).limit(1).exec((err, filtered_cards) => {
-                                // Find that same card in dictionary, since adjectives only contains the word and id
-                                dictionary.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
-                                    mainWindow.webContents.send('card-delivery', card)
-                                })
-                            })
-                        })
-                        break
-                    case "adverb":
-                        adverb_dic.count({}, (err, count_adj) => {
-                            var skipCount = Math.floor(Math.random() * count_adj);
-                            // Pick random card in adjectives
-                            adverb_dic.find().skip(skipCount).limit(1).exec((err, filtered_cards) => {
-                                // Find that same card in dictionary, since adjectives only contains the word and id
-                                dictionary.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
-                                    mainWindow.webContents.send('card-delivery', card)
-                                })
-                            })
-                        })
-                        break
-                    case "yoji":
-                        yoji_dic.count({}, (err, count_adj) => {
-                            var skipCount = Math.floor(Math.random() * count_adj);
-                            // Pick random card in adjectives
-                            yoji_dic.find().skip(skipCount).limit(1).exec((err, filtered_cards) => {
-                                // Find that same card in dictionary, since adjectives only contains the word and id
-                                dictionary.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
-                                    mainWindow.webContents.send('card-delivery', card)
-                                })
-                            })
-                        })
-                        break
+ipcMain.on('quick-card', (event, query) => {
+    console.log(query)
+    dictionary.findOne({kanji: query}, (error, doc) => {
+        if(!error) {
+            console.log(doc)
+            quickWin = new BrowserWindow({
+                parent: mainWindow,
+                width: 300,
+                height: 400,
+                frame: false,
+                show: true,
+                modal: true,
+                resizable: false,
+                webPreferences: {
+                    contextIsolation: false,
+                    nodeIntegration: true
                 }
-            }
-            else {
-                var skipCount = Math.floor(Math.random() * count);
-                dictionary.find({}).skip(skipCount).limit(1).exec(function (err2, docs) {
-                    if (!err2) {
-                        mainWindow.webContents.send('card-delivery', docs[0])
-                    }
-                });
-            }
+            })
+        
+            quickWin.loadFile('components/quick_card/quick_card.html');
+        
+            // quickWin.openDevTools()
+            
+            quickWin.on('did-finish-load', () => {
+                
+                quickWin.webContents.send('quick-card-delivery', doc)
+            })
+
+            quickWin.on('ready-to-show', () => {
+                console.log("Sending quick card")
+                quickWin.webContents.send('quick-card-delivery', doc)
+                let pos = mainWindow.getPosition()
+                quickWin.setPosition(pos[0] + 200, pos[1] + 200)
+                quickWin.show()
+            })
+        
+            quickWin.on('closed', () => {
+                filterWindow = null;
+            })
+        } 
+        else {
+            console.log("Error happened.")
         }
-    });
+    }) 
+})
+
+ipcMain.handle('card-query', async (event, query, number) => {
+    let result = await new Promise((resolve, reject) => {
+        if (query) {
+            dictionary.find({ $or : [{kanji: query}, {hiragana: query}] })
+                .limit(number).exec((error, docs) => {
+                    if(!error) {
+                        resolve(docs)
+                    }
+                    else {
+                        reject(docs)
+                    }
+            })
+        }
+    })
+    return result
+})
+
+ipcMain.on('card-request', (err, card) => {
+
+    if(filter !== "") {
+        switch (filter) {
+            case "noun":
+                noun_dic.count({}, (err, count_n) => {
+                    var skipCount = Math.floor(Math.random() * count_n);
+                    // Pick random card in nouns
+                    noun_dic.find().skip(skipCount).limit(1).exec((err, filtered_cards) => {
+                        // Find that same card in dictionary, since nouns only contains the word and id
+                        dictionary.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
+                            mainWindow.webContents.send('card-delivery', card)
+                        })
+                    })
+                })
+                break
+            case "verb":
+                verb_dic.count({}, (err, count_v) => {
+                    var skipCount = Math.floor(Math.random() * count_v);
+                    // Pick random card in adjectives
+                    verb_dic.find().skip(skipCount).limit(1).exec((err, filtered_cards) => {
+                        // Find that same card in dictionary, since adjectives only contains the word and id
+                        dictionary.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
+                            mainWindow.webContents.send('card-delivery', card)
+                        })
+                    })
+                })
+                break
+            case "adjective":
+                adjective_dic.count({}, (err, count_adj) => {
+                    var skipCount = Math.floor(Math.random() * count_adj);
+                    // Pick random card in adjectives
+                    adjective_dic.find().skip(skipCount).limit(1).exec((err, filtered_cards) => {
+                        // Find that same card in dictionary, since adjectives only contains the word and id
+                        dictionary.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
+                            mainWindow.webContents.send('card-delivery', card)
+                        })
+                    })
+                })
+                break
+            case "adverb":
+                adverb_dic.count({}, (err, count_adj) => {
+                    var skipCount = Math.floor(Math.random() * count_adj);
+                    // Pick random card in adjectives
+                    adverb_dic.find().skip(skipCount).limit(1).exec((err, filtered_cards) => {
+                        // Find that same card in dictionary, since adjectives only contains the word and id
+                        dictionary.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
+                            mainWindow.webContents.send('card-delivery', card)
+                        })
+                    })
+                })
+                break
+            case "yoji":
+                yoji_dic.count({}, (err, count_adj) => {
+                    var skipCount = Math.floor(Math.random() * count_adj);
+                    // Pick random card in adjectives
+                    yoji_dic.find().skip(skipCount).limit(1).exec((err, filtered_cards) => {
+                        // Find that same card in dictionary, since adjectives only contains the word and id
+                        dictionary.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
+                            mainWindow.webContents.send('card-delivery', card)
+                        })
+                    })
+                })
+                break
+        }
+    }
+    else {
+        dictionary.count({}, (error, count) => {
+            var skipCount = Math.floor(Math.random() * count)
+            dictionary.find({}).skip(skipCount).limit(1).exec(function (err2, docs) {
+                if (!err2) {
+                    mainWindow.webContents.send('card-delivery', docs[0])
+                }
+            })
+        })
+        
+    }
+})
+
+ipcMain.handle('table-request', (event, query) => {
+    console.log("Query: ", query)
+    results = []
+    if(query) {
+        dictionary.find({kanji: query}, (err, kanji_docs) => {
+            console.log("Kanji", kanji_docs)
+            results = results.concat(kanji_docs)
+            dictionary.find({hiragana: query}, (err, hiragana_docs) => {
+                console.log("Hiragana", hiragana_docs)
+                results = results.concat(hiragana_docs)
+                console.log(results)
+                mainWindow.webContents.send('table-delivery', results)
+            })
+        })
+    } else {
+        dictionary.find({}, (err, docs) => {
+            mainWindow.webContents.send('table-delivery', docs)
+        })
+    }
 })
 
 ipcMain.on('request-filter-win', (err) => {
@@ -300,6 +358,7 @@ ipcMain.on('alert-win', (err, message) => {
 
     alertWindow.loadFile('components/alert/alert.html')
 
+    // ????????????????????????????????
     alertWindow.on('did-finish-load', () => {
         alertWindow.webContents.send('alert', message)
     })
@@ -318,8 +377,26 @@ ipcMain.on('alert-win', (err, message) => {
     })
 })
 
+ipcMain.handle('count-kanji', async () => {
+    let count = await new Promise((resolve, reject) => {
+        dictionary.count({}, (error, count) => {
+            if(!error) {
+                resolve(count)
+            } else {
+                reject(count)
+            }
+        }) 
+    })
+    return count
+})
+
+
 ipcMain.on('close-filter', () => {
     filterWindow.close();
+})
+
+ipcMain.on('close-quickwin', () => {
+    quickWin.close();
 })
 
 ipcMain.on('close-alert', () => {
@@ -330,35 +407,35 @@ ipcMain.on('update-filters', (err, new_filter) => {
     console.log("Current filter: ", filter)
     switch (new_filter) {
         case 'noun':
-            if(filter !== "noun"){
+            if(filter !== 'noun'){
                 filter = 'noun'
             } else {
                 filter = ""
             }
             break;
         case 'verb':
-            if(filter !== "verb"){
+            if(filter !== 'verb'){
                 filter = 'verb'
             } else {
                 filter = ""
             }
             break
         case 'adjective':
-            if(filter !== "adjective"){
+            if(filter !== 'adjective'){
                 filter = 'adjective'
             } else {
                 filter = ""
             }
             break;
         case 'adverb':
-            if(filter !== "adverb"){
+            if(filter !== 'adverb'){
                 filter = 'adverb'
             } else {
                 filter = ""
             }
             break;
         case 'yoji':
-            if(filter !== "yoji"){
+            if(filter !== 'yoji'){
                 filter = 'yoji'
             } else {
                 filter =""
@@ -367,8 +444,13 @@ ipcMain.on('update-filters', (err, new_filter) => {
     }
 })
 
+ipcMain.on('load-deck', () => {
+    mainWindow.loadFile('./renderer/index.html')
+})
 
-
+ipcMain.on('load-browse', () => {
+    mainWindow.loadFile('components/browse/browse.html')
+})
 
 app.on('ready', () => {
     createWindow();

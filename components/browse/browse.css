@@ -1,0 +1,205 @@
+:root{
+    --highlight:  #d49c6b;
+    --base:  #f6fafb;
+    --background: #252b31;
+}
+
+@font-face {
+    font-family: "Kosugi";
+    src: url("../../renderer/styles/fonts/Kosugi-Regular.ttf");
+}
+
+@font-face {
+    font-family: "Roboto";
+    src: url("../../renderer/styles/fonts/Roboto-Regular.ttf");
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background);
+    text-decoration: none;
+    font-family: "Roboto", sans-serif;
+    list-style: none;
+}
+
+body {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    flex-direction: column;
+}
+
+header {
+    margin-top: 15px;
+    display: flex;
+}
+
+.nav-elements {
+    height: 5vh;
+    width: 85vw;
+    display: flex;
+    justify-content: flex-start;
+    border-bottom: 3px solid var(--highlight);
+    align-items: flex-end;
+}
+
+#icon-title {
+    text-align: center;
+    height: 5vh;
+    width: 15vw;
+    padding: 0 1vw;
+    color: var(--base);
+    font-size: 2rem;
+    border-bottom: 3px solid var(--highlight);
+}
+
+/* ///////////////////////////// */
+
+.nav-elements button {
+    letter-spacing: 1px;
+    background-color: var(--base);
+    font-family: 'Kosugi', sans-serif;
+    cursor: pointer;
+    border: none;
+    border-bottom: 10px solid var(--background);
+    padding: 4px 6px;
+    margin: 0 1vw;
+    transition: all 0.3s ease;
+}
+
+.nav-elements button:hover {
+    color: var(--base);
+    background-color: var(--highlight);
+    border-bottom: 10px solid var(--highlight);
+}
+
+
+#main {
+    width: 70%;
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 2vw 4vh;
+}
+
+form {
+    display: flex;
+    flex-wrap: nowrap;
+    align-self: flex-start;
+    justify-content: space-between;
+    padding: 8px 0;
+}
+
+#page-size {
+    background-color: var(--base);
+    color: black;
+    width: 10%;
+    text-align: center;
+    font-family: 'Kosugi', sans-serif;
+    font-size: 1.5rem;
+    padding: 4px;
+}
+
+#total-count { 
+    background-color: var(--base);
+    color: black;
+    width: 10%;
+    text-align: center;
+    font-family: 'Kosugi', sans-serif;
+    font-size: 1.5rem;
+    padding: 4px;
+}
+
+#count-separator {
+    color: var(--base);
+    background-color: inherit;
+    text-align: center;
+    font-family: 'Kosugi', sans-serif;
+    font-size: 1.5rem;
+    padding: 4px;
+}
+
+#search-bar {
+    background-color: var(--base);
+    width: 70%;
+    color: black;
+    font-family: 'Kosugi', sans-serif;
+    font-size: 1.5rem;
+    padding: 4px;
+    margin: 0 5px;
+}
+
+#search-btn {
+    background-color: var(--base);
+    color: black;
+    border: none;
+    font-family: 'Kosugi', sans-serif;
+    font-size: 1.5rem;
+    padding: 4px;
+    margin: 0 5px;
+}
+
+#search-btn:hover {
+    color: var(--base);
+    background-color: var(--highlight);
+}
+
+#browse-table {
+    width: 100%;
+    height: 100%;
+    background-color: var(--base);
+    display: flex;
+    flex-wrap: wrap;
+    padding: 8px 0;
+}
+
+.kanji-cell {
+    background-color: var(--base);
+    font-family: 'Kosugi', sans-serif;
+    font-size: 2rem;
+    justify-content: center;
+    align-items: center;
+    margin: 8px 8px;
+    padding: 3px;
+    transition: border-width 0.3s ease-in;
+}
+
+.kanji-span {
+    background-color: inherit;
+    font-size: 2.5rem;
+    text-align: center;
+}
+
+.hiragana-span {
+    background-color: inherit;
+    font-size: 1rem;
+    text-align: center;
+    writing-mode: vertical-lr;
+}
+
+#page-slider {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    color: var(--base);
+}
+
+#page-slider span {
+    margin: 8px;
+    font-family: 'Kosugi', sans-serif;
+    font-size: 1.5rem;
+}
+
+#page-slider span:hover {
+    color: var(--highlight);
+    cursor: pointer;
+}
+
+.kanji-cell:hover {
+    border-bottom: 3px solid var(--highlight);
+    cursor: pointer;
+}

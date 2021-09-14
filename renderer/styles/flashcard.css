@@ -67,6 +67,10 @@ header {
     margin: 0 1vw;
 }
 
+.nav-elements li {
+    font-family: 'Kosugi', sans-serif;
+}
+
 /* /////////////// Cards CSS ///////////////// */
 #main {
     width: 100%;

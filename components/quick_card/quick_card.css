@@ -1,0 +1,127 @@
+:root{
+    --highlight:  #d49c6b;
+    --base:  #f6fafb;
+    --background: #252b31;
+}
+
+@font-face {
+    font-family: "Kosugi";
+    src: url("../../renderer/styles/fonts/Kosugi-Regular.ttf");
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background-color: var(--base);
+}
+
+#top-border {
+    -webkit-app-region: drag;
+    background-color: var(--highlight);
+    height: 20px;
+}
+
+.main {
+    padding: 6px;
+    background-color: var(--base);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: inherit;
+}
+
+input {
+    font-family: 'Kosugi', sans-serif;
+    width: 100%;
+    font-size: 1.5rem;
+    margin: 2px 6px;
+    padding: 4px 4px;
+    background-color: inherit;
+    border: none;
+    
+    border-bottom: 1px solid var(--highlight);
+}
+
+#pitch-div {
+    margin: 6px;
+}
+
+span {
+    margin: 0;
+    padding: 0;
+    font-family: 'Kosugi', sans-serif;
+}
+
+#word {
+    text-align: right;
+}
+
+#classification {
+    text-align: right;
+}
+
+#definition {
+    background-color: inherit;
+    resize: none;
+    overflow: auto;
+    border: none;
+    font-family: 'Kosugi', sans-serif;
+}
+
+#lan-switch {
+    align-self: flex-end;
+    padding: 5px;
+    display: flex;
+    flex-direction: row-reverse;
+    background-color: var(--base);
+}
+
+textarea {
+    width: 100%;
+    height: 170px;
+    font-size: 1.2rem;
+}
+
+#EN-switch, #JP-switch{
+    transition: all .3s ease-out;
+    margin: 0;
+    padding: 3px 5px;
+    border: 1px solid var(--background);
+    font-weight: bold;
+}
+
+#EN-switch {
+    border-radius: 0 5px 5px 0;
+    transition: all 0.3s ease;
+}
+
+#JP-switch {
+    border-radius: 5px 0 0 5px;
+    transition: all 0.3s ease;
+}
+
+#EN-switch.active, #JP-switch.active {
+    background-color: var(--highlight);
+    color: var(--base);
+} 
+
+#close-btn {
+    margin: 8px;
+    padding: 6px;
+    background-color: var(--base);
+    font-family: 'Kosugi' sans-serif;
+    font-size: 1.5rem;
+    border-bottom: 1px solid var(--highlight);
+    transition: border-width 0.3s ease-in;
+}
+
+#close-btn:hover {
+    border: 1px solid var(--highlight)
+}

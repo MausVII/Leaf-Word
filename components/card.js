@@ -1,5 +1,9 @@
 const {ipcRenderer} = require('electron')
 
+const browse_btn = document.querySelector('#browse-btn')
+const deck_btn = document.querySelector('#deck-btn')
+
+
 const card_front = document.querySelector('#card-front');
 const card_back = document.querySelector('#card-back');
 // Card Elements
@@ -36,8 +40,9 @@ let temp_card
 ;(function disable_def_behavior() {
     document.querySelectorAll('button').forEach(function (button) { return button.addEventListener('click', function (e) { return e.preventDefault(); }); });
 }) ();
+
 // Setup for buttons that are appended later on and do not exist in the html file
-;(function button_styling_setup() {
+;( () => {
     pitch_div.id = "pitch_div";
 
     confirm_btn.id = "confirm-btn"
@@ -58,12 +63,17 @@ let temp_card
 }) ();
 
 /////////////// Card Setup ////////////////////
-
+/**
+ * Switches the active class on card_front and card_back
+ */
 function flip_card() {
     card_front.classList.toggle('active');
     card_back.classList.toggle('active');
 }
 
+/**
+ * Calls flip_card(), reset_card() and then sends 'card-request' to ipcRenderer
+ */
 function get_card() {
     flip_card()
     reset_card()
@@ -71,7 +81,9 @@ function get_card() {
 }
 
 // Setup before adding card
-// Info retrieval is done in get_card_info
+/**
+ * Prepares the add card menu: clears the card, adds confirm and cancel button, and adds pitch input
+ */
 function add_card() {
     clear_card()
     setup_add_buttons()
@@ -82,14 +94,27 @@ function add_card() {
     add_pitch_input() 
 }
 
+/**
+ * Prepares the card for editing: adds necessary input and removes read-only property
+ */
 function edit_card() {
     setup_add_buttons()
     remove_card_readonly()
+    // Remember to update the temp def as soon as the card is received and remove this
     temp_en_def = temp_card.en
     pitch_div.remove()
     class_input.insertAdjacentElement('afterend', hiragana_input)
     add_pitch_input()
     pitch_input.value = temp_card.pitch
+}
+
+function confirm_edit() {
+    // Come back to this
+    switch_to_EN()
+    switch_to_JP()
+    get_card_data()
+    flip_card()
+    reset_card()
 }
 
 function fill_card(card) {
@@ -102,6 +127,7 @@ function fill_card(card) {
     // Reset the pitch_div every time you fill a card
     // pitch_div = document.createElement("DIV");
 
+    // Still up to debate on whether or not to allow cards without pitch info
     if (card.pitch !== []) {
         // Returns a span for each character in hiragana with borders according to
         // pitch specifications
@@ -112,11 +138,11 @@ function fill_card(card) {
             pitch_div.append(pitch_span);
         });
         hiragana_input.remove();
-        console.log(pitch_div)
         class_input.insertAdjacentElement('afterend', pitch_div);
     }
     fill_definition()
 
+    // Need to resize depending on the size of the new word
     resize_front_font(card.kanji)
 }
 
@@ -160,6 +186,9 @@ function get_card_data() {
     }
 }
 
+/**
+ * Adds Confirm and Cancel buttons
+ */
 function setup_add_buttons() {
     edit_btn.remove()
     next_btn.remove()
@@ -169,6 +198,9 @@ function setup_add_buttons() {
     document.querySelector('#back-btns').append(confirm_btn)    
 }
 
+/**
+ * Removes readonly attribute from kanji, classification, hiragana and definition
+ */
 function remove_card_readonly () {
     kanji_input.removeAttribute('readonly')
     class_input.removeAttribute('readonly')
@@ -176,10 +208,16 @@ function remove_card_readonly () {
     definition_text.removeAttribute('readonly')
 }
 
+/**
+ * Adds the pitch_input after the hiragana input
+ */
 function add_pitch_input() {
     hiragana_input.insertAdjacentElement('afterend', pitch_input)
 }
 
+/**
+ * Sets front, kanji, classification, hiragana, pitch and to empty strings. Removes the pitch spans and switches the language to the default Japanese
+ */
 function clear_card() {
     front_kanji.innerText = ""
     kanji_input.value = ""
@@ -193,6 +231,9 @@ function clear_card() {
     switch_to_JP()
 }
 
+/**
+ * Calls clear_card(). Removes pitch input, Confirm and Cancel buttons. Sets Kanji, Classification, Hiragana and Definition to read only. Resets temp definitions. Reappends Edit, Next, and Add buttons
+ */
 function reset_card() {
     clear_card()
     // Remove editing buttons
@@ -212,8 +253,13 @@ function reset_card() {
 
 
     document.querySelector('#back-btns').append(edit_btn, next_btn, add_btn)
+
 }
 
+/**
+ * 
+ * @returns true if all validation tests are passes
+ */
 function validate_card_data() {
         // CJK (Kanji)
     if( kanji_input.value.match(/[\u4e00-\u9faf]/) == null
@@ -292,6 +338,12 @@ function validate_card_data() {
 }
 
 //////// Card Info Setup /////////////////////////////////////
+/**
+ * 
+ * @param {*} pitch Array containing pitch strings 
+ * @param {*} hiragana Array containing hiragana chars
+ * @returns Array containing styled spans for each hiragana
+ */
 function get_pitch_spans(pitch, hiragana) {
     if (pitch.length !== 0) {
         var temp_container = [];
@@ -321,6 +373,10 @@ function get_pitch_spans(pitch, hiragana) {
     }
 }
 
+/**
+ * Depending on the active language it fills the corresponding definition on the single definition textarea
+ * @param {*} definitions 
+ */
 function fill_definition(definitions) {
     if (jp_switch.classList.contains('active')) {
         temp_card.jp.forEach(function (definition) {
@@ -336,6 +392,10 @@ function fill_definition(definitions) {
     }
 }
 
+/**
+ * Changes the font size depending on the length of the current word
+ * @param {*} str Word to be put on the front
+ */
 function resize_front_font(str) {
     switch(str.length) {
         case 1:
@@ -345,24 +405,25 @@ function resize_front_font(str) {
             front_kanji.style.fontSize = '8rem'
             break
         case 3:
-            console.log("Should change to 4 rem")
             front_kanji.style.fontSize = '4rem'
             break
         case 4:
-            console.log("Should change to 4 rem")
             front_kanji.style.fontSize = '4rem'
             break
         case 5:
-            console.log("Should change to 4 rem")
             front_kanji.style.fontSize = '4rem'
             break;
         default:
-            console.log("Should change to 2 rem")
             front_kanji.style.fontSize = '2rem'
             break;
     }  
 }
 
+/**
+ * Decodes the pitch: turns l -> low, h -> high, f -> fall, r -> rise
+ * @param {*} str_arr Arrays containing the strings for each pitch value
+ * @returns Array with the finished pitched values
+ */
 function decode_pitch(str_arr) {
     temp_arr = []
     str_arr.forEach(str => {
@@ -384,7 +445,6 @@ function decode_pitch(str_arr) {
                 break
         }
     })
-    console.log(temp_arr)
     return temp_arr
 }
 
@@ -392,6 +452,15 @@ function decode_pitch(str_arr) {
 function switch_lan() {
     en_switch.classList.toggle('active');
     jp_switch.classList.toggle('active');
+}
+
+/**
+ * Does the setup to receive a new card: reset_card(), flip_Card() and send 'card-request' to ipcRenderer
+ */
+function reset_and_request() {
+    reset_card();
+    flip_card();
+    ipcRenderer.send('card-request');
 }
 
 function switch_to_JP() {
@@ -424,7 +493,6 @@ function switch_to_EN() {
         else {
             update_definition()
             definition_text.value = temp_en_def
-            
         }
     }
 }
@@ -442,16 +510,23 @@ function update_definition() {
 
 // Request alert window
 function request_win_alert(message) {
-    console.log("requested alert")
     ipcRenderer.send('alert-win', message)
 }
+
+browse_btn.addEventListener('click', () => {
+    ipcRenderer.send('load-browse')
+})
+
+deck_btn.addEventListener('click', () => {
+    ipcRenderer.send('load-deck')
+})
 
 flip_btn.addEventListener('click', flip_card)
 edit_btn.addEventListener('click', edit_card)
 next_btn.addEventListener('click', get_card)
 add_btn.addEventListener('click', add_card)
-confirm_btn.addEventListener('click', get_card_data)
-cancel_btn.addEventListener('click', reset_card)
+confirm_btn.addEventListener('click', confirm_edit)
+cancel_btn.addEventListener('click', reset_and_request)
 jp_switch.addEventListener('click', switch_to_JP)
 en_switch.addEventListener('click', switch_to_EN)
 

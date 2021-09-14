@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./quick_card.css">
+</head>
+<body>
+    <div id='top-border'></div>
+    <div class="main">
+        <div id="card">
+            <input type="text" id="word" placeholder="Kanji" readonly>
+            <input type="text" id="classification" placeholder="Classification" readonly>
+            <!-- The Hiragana input will be removed if there is pitch info available for the respective word-->
+            <div id="pitch-div">
+                <!-- Pitch spans will go here. Added in quick_card.js-->
+            </div>
+            <!-- Several spans will be added if there is pitch info available for the respective word-->
+            <div id="lan-switch">
+                <button id="EN-switch">EN</button>
+                <button id="JP-switch" class="active">JP</button>
+            </div>
+            <textarea name="def" id="definition" cols="30" rows="12" readonly></textarea>
+            <button id="close-btn">Close</button>
+        </div>
+    </div>
+
+    <script src="quick_card.js"></script>
+</body>
+</html>

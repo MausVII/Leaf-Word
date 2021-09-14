@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="browse.css">
+    <title>Browse</title>
+</head>
+<body>
+    <header>
+        <span id="icon-title">Leaf Word</span>
+        <nav id="nav-bar">
+            <ul class="nav-elements">
+                <li><button>&#8759  Decks</button></li>
+                <li><button>&#8759  Browse</button></li>
+                <li><button id="filter-btn">&#8759  Filter</button></li>
+                <li><button>&#8759  Settings</button></li>
+                <li><button>&#8759  Help</button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="main">
+        <form onsubmit="">
+            <input id="page-size" placeholder="10">
+            <span id="count-separator">/</span>
+            <input id="total-count" palceholder ="loading" readonly/>
+            <input id="search-bar" placeholder="Kanji"/>
+            <button id="search-btn" type="submit">Search</button>
+        </form>
+        <div id="browse-table">
+                <!-- Table of Kanjis added in Browse.js -->
+        </div>
+        <div id="page-slider">
+            <span id="first-slider"><<</span>
+            <span id="last-slider">>></span>
+        </div>
+    </div>
+
+    <script src="browse.js"></script>
+</body>
+</html>
