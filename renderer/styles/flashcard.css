@@ -170,6 +170,29 @@ header {
     padding: 0.5px;
 }
 
+#meter-lan-container {
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--base);
+    align-items: center;
+}
+
+#priority-meter {
+    background-color: var(--base);
+}
+
+.prio-btn {
+    width: 20px;
+    height: 20px;
+    background-color: var(--base);
+    border: 1px solid var(--highlight);
+    transition: all 0.3s ease;
+}
+
+.prio-btn.active {
+    background-color: var(--highlight);
+}
+
 #lan-switch {
     padding: 5px;
     display: flex;

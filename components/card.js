@@ -20,6 +20,15 @@ const pitch_input = document.createElement('INPUT')
 /////////////////////////////////////////////////////////////////
 const definition_text = document.querySelector('#definition');
 // Language switches
+
+const prio_1 = document.querySelector('#priority-1')
+const prio_2 = document.querySelector('#priority-2')
+const prio_3 = document.querySelector('#priority-3')
+const prio_4 = document.querySelector('#priority-4')
+const prio_5 = document.querySelector('#priority-5')
+
+const notes_btn = document.querySelector('#notes-btn')
+
 const en_switch = document.querySelector('#EN-switch');
 const jp_switch = document.querySelector('#JP-switch');
 // Card back buttons
@@ -119,6 +128,7 @@ function confirm_edit() {
 
 function fill_card(card) {
     temp_card = card
+    get_components(card)
     front_kanji.innerText = card.kanji;
     kanji_input.value = card.kanji;
     class_input.value = card.classification;
@@ -140,7 +150,7 @@ function fill_card(card) {
         hiragana_input.remove();
         class_input.insertAdjacentElement('afterend', pitch_div);
     }
-    fill_definition()
+    fill_definition(temp_card)
 
     // Need to resize depending on the size of the new word
     resize_front_font(card.kanji)
@@ -377,18 +387,17 @@ function get_pitch_spans(pitch, hiragana) {
  * Depending on the active language it fills the corresponding definition on the single definition textarea
  * @param {*} definitions 
  */
-function fill_definition(definitions) {
+ function fill_definition({en, jp}) {
     if (jp_switch.classList.contains('active')) {
-        temp_card.jp.forEach(function (definition) {
-            var string_in = definition + "\n\n";
-            definition_text.value += string_in;
-        });
-    }
-    else {
-        temp_card.en.forEach(function (definition) {
-            var string_in = definition + "\n\n";
-            definition_text.value += string_in;
-        });
+        let definition = jp.reduce((accumulator, current) => {
+            return accumulator + "\n\n" + current
+        })
+        definition_text.value = definition
+    } else {
+        let definition = en.reduce((accumulator, current) => {
+            return accumulator + "\n\n" + current
+        })
+        definition_text.value = definition
     }
 }
 
@@ -508,6 +517,17 @@ function update_definition() {
     }
 }
 
+function get_components({kanji}) {
+    let container = []
+    temp_jp_def.match(/[\u4e00-\u9faf]/)
+    for (character of kanji) {
+        if(character.match(/[\u4e00-\u9faf]/)) {
+            container.push(character)
+        }
+    }
+    return container
+}
+
 // Request alert window
 function request_win_alert(message) {
     ipcRenderer.send('alert-win', message)
@@ -519,6 +539,24 @@ browse_btn.addEventListener('click', () => {
 
 deck_btn.addEventListener('click', () => {
     ipcRenderer.send('load-deck')
+})
+
+prio_1.addEventListener('mouseenter', (event) => {
+    event.target.classList.toggle('active')
+})
+
+prio_1.addEventListener('mouseleave', (event) => {
+    event.target.classList.toggle('active')
+})
+
+notes_btn.addEventListener('click', () => {
+    notes_btn.classList.toggle('active')
+    if(notes_btn.classList.contains('active')) {
+        definition_text.value = card.notes
+    } else {
+        update_definition()
+    }
+    
 })
 
 flip_btn.addEventListener('click', flip_card)

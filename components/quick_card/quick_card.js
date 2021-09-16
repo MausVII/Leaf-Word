@@ -6,7 +6,7 @@ const close_btn = document.querySelector('#close-btn')
 const kanji_in = document.querySelector('#word')
 const class_in = document.querySelector('#classification')
 const pitch_div = document.querySelector('#pitch-div')
-const definition_area = document.querySelector('#definition')
+const definition_text = document.querySelector('#definition')
 const jp_switch = document.querySelector('#JP-switch')
 const en_switch = document.querySelector('#EN-switch')
 
@@ -53,12 +53,12 @@ function fill_definition({en, jp}) {
         let definition = jp.reduce((accumulator, current) => {
             return accumulator + "\n\n" + current
         })
-        definition_area.value = definition
+        definition_text.value = definition
     } else {
         let definition = en.reduce((accumulator, current) => {
             return accumulator + "\n\n" + current
         })
-        definition_area.value = definition
+        definition_text.value = definition
     }
 }
 

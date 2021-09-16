@@ -90,28 +90,44 @@ function createWindow() {
                 })
                 
                
-                dictionary.find({kanji: '縛る'}, function (err2, docs) {
-                    if (!err2) {
-                        // let new_doc = {
-                        //     kanji: docs[0].kanji,
-                        //     variants: [],
-                        //     hiragana: docs[0].hiragana,
-                        //     tags: docs[0].classification,
-                        //     pitch: [docs[0].pitch[0], docs[0].pitch[1], docs[0].pitch[1]],
-                        //     eng_def: [docs[0].en[0]],
-                        //     jap_def: [docs[0].jp[0]],
-                        //     priority: 0
-                        // }
-                        // new_dic.insert(new_doc, (error, newDoc) => {
-                        //     console.log('Inserted: ', newDoc)
-                        // })
+                dictionary.find({kanji: '縛る'}, function (error, docs) {
+                    if (!error) {
                         mainWindow.webContents.send('card-delivery', docs[0])
+                    } else {
+                        alert(error)
                     }
                 });
 
             }
           });
     })
+
+    /// Temp stuff
+    function get_full_card(card) {
+        let newCard = {
+            kanji: card.kanji,
+            variants: [],
+            hiragana: card.hiragana,
+            tags: card.classification,
+            pitch: [...card.pitch],
+            eng_def: [...card.en],
+            jap_def: [...card.jp],
+            priority: 0,
+            components: get_components(card),
+            notes: ''
+        }
+        return newCard
+    }
+
+    function get_components({kanji}) {
+        let container = []
+        for (character of kanji) {
+            if(character.match(/[\u4e00-\u9faf]/)) {
+                container.push(character)
+            }
+        }
+        return container
+    }
 
     mainWindow.on('closed', () => {
         mainWindow = null;
@@ -164,11 +180,6 @@ ipcMain.on('quick-card', (event, query) => {
             quickWin.loadFile('components/quick_card/quick_card.html');
         
             // quickWin.openDevTools()
-            
-            quickWin.on('did-finish-load', () => {
-                
-                quickWin.webContents.send('quick-card-delivery', doc)
-            })
 
             quickWin.on('ready-to-show', () => {
                 console.log("Sending quick card")
@@ -288,15 +299,11 @@ ipcMain.handle('table-request', (event, query) => {
     console.log("Query: ", query)
     results = []
     if(query) {
-        dictionary.find({kanji: query}, (err, kanji_docs) => {
-            console.log("Kanji", kanji_docs)
-            results = results.concat(kanji_docs)
-            dictionary.find({hiragana: query}, (err, hiragana_docs) => {
-                console.log("Hiragana", hiragana_docs)
-                results = results.concat(hiragana_docs)
-                console.log(results)
-                mainWindow.webContents.send('table-delivery', results)
-            })
+        // dictionary.find({ $or : [{kanji: query}, {hiragana: query}] })
+        // $or: [{kanji: query}, {hiragana: query}]
+        new_dic.find({ $or : [{kanji: query}, {hiragana: query}, {components: query} ] }, (err, results) => {
+            console.log("Kanji", results)
+            mainWindow.webContents.send('table-delivery', results)
         })
     } else {
         dictionary.find({}, (err, docs) => {
@@ -357,11 +364,6 @@ ipcMain.on('alert-win', (err, message) => {
     })
 
     alertWindow.loadFile('components/alert/alert.html')
-
-    // ????????????????????????????????
-    alertWindow.on('did-finish-load', () => {
-        alertWindow.webContents.send('alert', message)
-    })
 
     alertWindow.on('ready-to-show', () => {
         console.log("Created alert window")
