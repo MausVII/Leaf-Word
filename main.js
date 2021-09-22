@@ -73,7 +73,7 @@ function createWindow() {
     mainWindow.webContents.openDevTools();
 
     mainWindow.webContents.on('did-finish-load', e => {
-        dictionary.count({}, function (err, count) {
+        new_dic.count({}, function (err, count) {
             if (!err && count > 0) {
                 // count is the number of docs
           
@@ -81,7 +81,7 @@ function createWindow() {
                 var skipCount = Math.floor(Math.random() * count);
 
                 console.log(`${app.getPath('userData')}/dictionary`)
-                dictionary.count({}, (error, count) => {
+                new_dic.count({}, (error, count) => {
                     if(!error) {
                         mainWindow.webContents.send('kanji-count', count)
                     } else {
@@ -90,7 +90,7 @@ function createWindow() {
                 })
                 
                
-                dictionary.find({kanji: '縛る'}, function (error, docs) {
+                new_dic.find({kanji: '見る'}, function (error, docs) {
                     if (!error) {
                         mainWindow.webContents.send('card-delivery', docs[0])
                     } else {
@@ -135,10 +135,10 @@ function createWindow() {
 }
 
 ipcMain.on('new-card', (e, card) => {
-    dictionary.findOne({kanji: card.kanji}, (error, result) => {
+    new_dic.findOne({kanji: card.kanji}, (error, result) => {
         if (result) {
             // Card already exists
-            dictionary.update({kanji: card.kanji}, card, {}, (error, numReplaced) => {
+            new_dic.update({kanji: card.kanji}, card, {}, (error, numReplaced) => {
                 if(!error) {
                     console.log(`Updated ${numReplaced} card.`)
                     mainWindow.webContents.send('card-delivery', card)
@@ -146,7 +146,7 @@ ipcMain.on('new-card', (e, card) => {
             })
         } else {
             // New card
-            dictionary.insert(card, (error, doc) => {
+            new_dic.insert(card, (error, doc) => {
                 if(!error) {
                     console.log('Inserted new card: ', doc)
                     mainWindow.webContents.send('card-delivery', doc)
@@ -160,7 +160,7 @@ ipcMain.on('new-card', (e, card) => {
 
 ipcMain.on('quick-card', (event, query) => {
     console.log(query)
-    dictionary.findOne({kanji: query}, (error, doc) => {
+    new_dic.findOne({kanji: query}, (error, doc) => {
         if(!error) {
             console.log(doc)
             quickWin = new BrowserWindow({
@@ -202,7 +202,7 @@ ipcMain.on('quick-card', (event, query) => {
 ipcMain.handle('card-query', async (event, query, number) => {
     let result = await new Promise((resolve, reject) => {
         if (query) {
-            dictionary.find({ $or : [{kanji: query}, {hiragana: query}] })
+            new_dic.find({ $or : [{kanji: query}, {hiragana: query}] })
                 .limit(number).exec((error, docs) => {
                     if(!error) {
                         resolve(docs)
@@ -226,7 +226,7 @@ ipcMain.on('card-request', (err, card) => {
                     // Pick random card in nouns
                     noun_dic.find().skip(skipCount).limit(1).exec((err, filtered_cards) => {
                         // Find that same card in dictionary, since nouns only contains the word and id
-                        dictionary.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
+                        new_dic.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
                             mainWindow.webContents.send('card-delivery', card)
                         })
                     })
@@ -238,7 +238,7 @@ ipcMain.on('card-request', (err, card) => {
                     // Pick random card in adjectives
                     verb_dic.find().skip(skipCount).limit(1).exec((err, filtered_cards) => {
                         // Find that same card in dictionary, since adjectives only contains the word and id
-                        dictionary.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
+                        new_dic.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
                             mainWindow.webContents.send('card-delivery', card)
                         })
                     })
@@ -250,7 +250,7 @@ ipcMain.on('card-request', (err, card) => {
                     // Pick random card in adjectives
                     adjective_dic.find().skip(skipCount).limit(1).exec((err, filtered_cards) => {
                         // Find that same card in dictionary, since adjectives only contains the word and id
-                        dictionary.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
+                        new_dic.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
                             mainWindow.webContents.send('card-delivery', card)
                         })
                     })
@@ -262,7 +262,7 @@ ipcMain.on('card-request', (err, card) => {
                     // Pick random card in adjectives
                     adverb_dic.find().skip(skipCount).limit(1).exec((err, filtered_cards) => {
                         // Find that same card in dictionary, since adjectives only contains the word and id
-                        dictionary.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
+                        new_dic.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
                             mainWindow.webContents.send('card-delivery', card)
                         })
                     })
@@ -274,7 +274,7 @@ ipcMain.on('card-request', (err, card) => {
                     // Pick random card in adjectives
                     yoji_dic.find().skip(skipCount).limit(1).exec((err, filtered_cards) => {
                         // Find that same card in dictionary, since adjectives only contains the word and id
-                        dictionary.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
+                        new_dic.findOne({ kanji: filtered_cards[0].word}, (err, card) => {
                             mainWindow.webContents.send('card-delivery', card)
                         })
                     })
@@ -283,9 +283,9 @@ ipcMain.on('card-request', (err, card) => {
         }
     }
     else {
-        dictionary.count({}, (error, count) => {
+        new_dic.count({}, (error, count) => {
             var skipCount = Math.floor(Math.random() * count)
-            dictionary.find({}).skip(skipCount).limit(1).exec(function (err2, docs) {
+            new_dic.find({}).skip(skipCount).limit(1).exec(function (err2, docs) {
                 if (!err2) {
                     mainWindow.webContents.send('card-delivery', docs[0])
                 }
@@ -306,7 +306,7 @@ ipcMain.handle('table-request', (event, query) => {
             mainWindow.webContents.send('table-delivery', results)
         })
     } else {
-        dictionary.find({}, (err, docs) => {
+        new_dic.find({}, (err, docs) => {
             mainWindow.webContents.send('table-delivery', docs)
         })
     }
@@ -381,7 +381,7 @@ ipcMain.on('alert-win', (err, message) => {
 
 ipcMain.handle('count-kanji', async () => {
     let count = await new Promise((resolve, reject) => {
-        dictionary.count({}, (error, count) => {
+        new_dic.count({}, (error, count) => {
             if(!error) {
                 resolve(count)
             } else {

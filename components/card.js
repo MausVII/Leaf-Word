@@ -1,4 +1,5 @@
 const {ipcRenderer} = require('electron')
+const card = require('./card/card')
 
 const browse_btn = document.querySelector('#browse-btn')
 const deck_btn = document.querySelector('#deck-btn')
@@ -26,6 +27,7 @@ const prio_2 = document.querySelector('#priority-2')
 const prio_3 = document.querySelector('#priority-3')
 const prio_4 = document.querySelector('#priority-4')
 const prio_5 = document.querySelector('#priority-5')
+const prio_btns = [prio_1, prio_2, prio_3, prio_4, prio_5]
 
 const notes_btn = document.querySelector('#notes-btn')
 
@@ -40,13 +42,33 @@ const confirm_btn = document.createElement('BUTTON')
 const cancel_btn = document.createElement('BUTTON')
 // Temporary definitions updated every time language switch
 // is used while editing or creating a new card
+
+const card_container = {
+    front: card_front,
+    back: card_back,
+    btn_area: document.querySelector('#back-btns'),
+    edit_btn: document.querySelector('#edit-btn'),
+    next_btn: document.querySelector('#next-btn'),
+    add_btn: document.querySelector('#add-btn'),
+    confirm_btn: confirm_btn,
+    cancel_btn: cancel_btn
+
+}
+
 let temp_jp_def = ""
 let temp_en_def = ""
+let notes = ''
+let editing_notes = false
+let components = []
+let priority
+
+is_adding_card = false
 
 let temp_card
 
 // HTML setup
-;(function disable_def_behavior() {
+;(async function disable_def_behavior() {
+    console.log("Invoked card: ", await card.invoke_card("乗り遅れる"))
     document.querySelectorAll('button').forEach(function (button) { return button.addEventListener('click', function (e) { return e.preventDefault(); }); });
 }) ();
 
@@ -75,16 +97,16 @@ let temp_card
 /**
  * Switches the active class on card_front and card_back
  */
-function flip_card() {
-    card_front.classList.toggle('active');
-    card_back.classList.toggle('active');
-}
+// function flip_card() {
+//     card_front.classList.toggle('active');
+//     card_back.classList.toggle('active');
+// }
 
 /**
  * Calls flip_card(), reset_card() and then sends 'card-request' to ipcRenderer
  */
 function get_card() {
-    flip_card()
+    card.flip_card(card_container)
     reset_card()
     ipcRenderer.send('card-request')
 }
@@ -94,8 +116,16 @@ function get_card() {
  * Prepares the add card menu: clears the card, adds confirm and cancel button, and adds pitch input
  */
 function add_card() {
+    is_adding_card = true
+    temp_card.eng_def.forEach((def, index, definitions) => {
+        temp_card.eng_def[index] = ""
+    })
+    temp_card.jap_def.forEach((def, index, definitions) => {
+        temp_card.jap_def[index] = ""
+    })
     clear_card()
-    setup_add_buttons()
+    // setup_add_buttons()
+    card.attach_edit_btns(card_container)
     remove_card_readonly()
     // Need to add in hiragana input before adding pitch_in
     pitch_div.remove()
@@ -107,10 +137,11 @@ function add_card() {
  * Prepares the card for editing: adds necessary input and removes read-only property
  */
 function edit_card() {
-    setup_add_buttons()
+    // setup_add_buttons()
+    card.attach_edit_btns(card_container)
     remove_card_readonly()
-    // Remember to update the temp def as soon as the card is received and remove this
-    temp_en_def = temp_card.en
+    // Pending: Move this to 'receive new card' for max certainty
+    update_definition()
     pitch_div.remove()
     class_input.insertAdjacentElement('afterend', hiragana_input)
     add_pitch_input()
@@ -119,19 +150,22 @@ function edit_card() {
 
 function confirm_edit() {
     // Come back to this
-    switch_to_EN()
-    switch_to_JP()
+    switch_lan()
+
     get_card_data()
-    flip_card()
+    card.flip_card(card_container)
     reset_card()
 }
 
 function fill_card(card) {
     temp_card = card
-    get_components(card)
+    kanji = card.kanji
+    components = get_components(card.kanji)
+    priority = card.priority
+    notes = card.notes
     front_kanji.innerText = card.kanji;
     kanji_input.value = card.kanji;
-    class_input.value = card.classification;
+    class_input.value = card.tags;
     hiragana_input.value = card.hiragana;
 
     // Reset the pitch_div every time you fill a card
@@ -150,10 +184,11 @@ function fill_card(card) {
         hiragana_input.remove();
         class_input.insertAdjacentElement('afterend', pitch_div);
     }
-    fill_definition(temp_card)
+    fill_definition(card)
 
     // Need to resize depending on the size of the new word
     resize_front_font(card.kanji)
+    console.log(components)
 }
 
 function get_card_data() {
@@ -167,33 +202,55 @@ function get_card_data() {
     }
 
     if(validate_card_data()) {
-        temp_kanji = kanji_input.value
-        temp_classification = class_input.value
-        temp_hiragana = hiragana_input.value
+
+        let variants = []
+
+        console.log("Match: ", temp_jp_def.match(/(?<=\$).*(?=\$)/g))
+        unprocessed_variants = temp_jp_def.match(/(?<=\$).*(?=\$)/g)
+        console.log(unprocessed_variants)
+        if(unprocessed_variants) {
+            unprocessed_variants = unprocessed_variants[0]
+            unprocessed_variants = unprocessed_variants.replace(/\sg, ''/)
+            unprocessed_variants = unprocessed_variants.split(',')
+            for(variant of unprocessed_variants) {
+                variants.push(variant)
+            }
+        }
+
         temp_str = pitch_input.value
         temp_str = temp_str.replace(/\s/g, '')
         // Do l = low, h = high, r = rise, f = fall
         temp_pitch = decode_pitch(temp_str.split(','))
 
+        temp_jp_def = temp_jp_def.replace(/(?<=\$).*(?=\$)/g, '')
+        temp_jp_def = temp_jp_def.replace('$', '')
+        temp_jp_def = temp_jp_def.replace('\n', '')
         temp_jp = temp_jp_def.split("|")
         temp_en = temp_en_def.split("|")
 
-        temp_jp_def = ""
-        temp_en_def = ""
-
-        clear_card()
+        
 
         temp_card = {
-            kanji: temp_kanji,
-            classification: temp_classification,
-            hiragana: temp_hiragana,
+            kanji: kanji_input.value,
+            variants: variants,
+            hiragana: hiragana_input.value,
+            tags: class_input.value,
             pitch: temp_pitch,
-            jp: temp_jp,
-            en: temp_en
+            eng_def: temp_en,
+            jap_def: temp_jp,
+            priority: priority,
+            components: get_components(kanji_input.value),
+            notes: notes
         } 
+
+        clear_card()
+        console.log(temp_card)
 
         ipcRenderer.send('new-card', temp_card) 
     }
+
+    temp_jp_def = ""
+    temp_en_def = ""
 }
 
 /**
@@ -238,7 +295,10 @@ function clear_card() {
         pitch_span.remove()
     })
     pitch_input.value = ""
-    switch_to_JP()
+    if (en_switch.classList.contains('active')) {
+        switch_lan()
+    }
+    
 }
 
 /**
@@ -271,16 +331,18 @@ function reset_card() {
  * @returns true if all validation tests are passes
  */
 function validate_card_data() {
+    console.log(temp_en_def)
+    console.log(temp_jp_def)
         // CJK (Kanji)
-    if( kanji_input.value.match(/[\u4e00-\u9faf]/) == null
-        // Hiragana 
-        && kanji_input.value.match(/[\u3040-\u309f]/) == null
-        // Katakana 
-        && kanji_input.value.match(/[\u30a0-\u30ff]/) == null) {
-        console.log("Error at kanji")
-        request_win_alert("Word input must only include Kanji, hiragana, or katakana.")
-        return false
-    } 
+    // if( kanji_input.value.match(/[\u4e00-\u9faf]/) == null
+    //     // Hiragana 
+    //     && kanji_input.value.match(/[\u3040-\u309f]/) == null
+    //     // Katakana 
+    //     && kanji_input.value.match(/[\u30a0-\u30ff]/) == null) {
+    //     console.log("Error at kanji")
+    //     request_win_alert("Word input must include Kanji, hiragana, or katakana.")
+    //     return false
+    // } 
     if (class_input.value.match(/[\u4e00-\u9faf]/) == null && class_input.value.match(/[\u3040-\u309f]/) == null) {
         request_win_alert("Classification must only contain kanji or hiragana")
         return false
@@ -334,6 +396,8 @@ function validate_card_data() {
     // Cannot test to make sure it contains no English, some definitions
     // use English to denote abbreviations and such
     if( temp_jp_def.match(/[\u4e00-\u9faf]/) == null && temp_jp_def.match(/[\u3040-\u309f]/) == null) {
+        console.log(temp_jp_def)
+        console.log(temp_jp_def.match(/[\u4e00-\u9faf]/))
         request_win_alert("JP def has no kanji or hiragana")
         return false
     } 
@@ -377,7 +441,7 @@ function get_pitch_spans(pitch, hiragana) {
                     new_kana.style.borderRight = "2px solid var(--highlight)";
                     break;
             }
-            temp_container[i] = new_kana;
+            temp_container.push(new_kana)
         }
         return temp_container;
     }
@@ -387,14 +451,14 @@ function get_pitch_spans(pitch, hiragana) {
  * Depending on the active language it fills the corresponding definition on the single definition textarea
  * @param {*} definitions 
  */
- function fill_definition({en, jp}) {
+ function fill_definition({eng_def, jap_def}) {
     if (jp_switch.classList.contains('active')) {
-        let definition = jp.reduce((accumulator, current) => {
+        let definition = jap_def.reduce((accumulator, current) => {
             return accumulator + "\n\n" + current
         })
         definition_text.value = definition
     } else {
-        let definition = en.reduce((accumulator, current) => {
+        let definition = eng_def.reduce((accumulator, current) => {
             return accumulator + "\n\n" + current
         })
         definition_text.value = definition
@@ -459,8 +523,32 @@ function decode_pitch(str_arr) {
 
 // Language switch functions
 function switch_lan() {
+    update_definition()
     en_switch.classList.toggle('active');
     jp_switch.classList.toggle('active');
+
+    
+    // Don't update definiton if editing
+    if(editing_notes) {
+        // Resolve editing by switching language 2/2. Also possible by clicking notes btn again
+        resolve_editing()
+    } 
+    // In editing process
+    if(!editing_notes && !definition_text.hasAttribute('readonly')) {
+        if(jp_switch.classList.contains('active')) {
+            definition_text.value = temp_jp_def
+        } else {
+            definition_text.value = temp_en_def
+        }
+    }  
+    // Not in editing process. Regular language switch
+    else if (definition_text.hasAttribute('readonly')) {
+        fill_definition(temp_card)
+    }
+    else {
+        console.log("Else case, what just happened?")
+        update_definition()
+    }
 }
 
 /**
@@ -468,58 +556,41 @@ function switch_lan() {
  */
 function reset_and_request() {
     reset_card();
-    flip_card();
+    card.flip_card(card_container);
     ipcRenderer.send('card-request');
-}
-
-function switch_to_JP() {
-    if(en_switch.classList.contains('active')) {
-        switch_lan();
-        if(definition_text.hasAttribute('readonly')) {
-            definition_text.value = ""
-            temp_card.jp.forEach(function (definition) {
-                var string_in = definition + "\n\n";
-                definition_text.value += string_in;
-            });
-        } 
-        else {
-            update_definition()
-            definition_text.value = temp_jp_def
-        }
-    }
-}
-
-function switch_to_EN() {
-    if(jp_switch.classList.contains('active')) {
-        switch_lan();
-        if(definition_text.hasAttribute('readonly')) {
-            definition_text.value = ""
-            temp_card.en.forEach(function (definition) {
-                var string_in = definition + "\n\n";
-                definition_text.value += string_in;
-            });
-        }
-        else {
-            update_definition()
-            definition_text.value = temp_en_def
-        }
-    }
 }
 
 function update_definition() {
     if(jp_switch.classList.contains('active')) {
-        temp_en_def = definition_text.value
-        console.log("New temp en: ", temp_en_def)
-    }
-    else {
+        console.log("Jp active")
         temp_jp_def = definition_text.value
-        console.log("New temp jp: ", temp_jp_def)
+        if(!is_adding_card) {
+            temp_en_def = temp_card.eng_def.reduce((accumulator, current) => {
+                return accumulator + "\n\n" + current
+            })
+        }
+
+        console.log("New jap_def: ", temp_jp_def)
+        console.log("New eng_def: ", temp_en_def)
+    } 
+    else {
+        console.log("Eng active")
+        temp_en_def = definition_text.value
+        if(!is_adding_card) {
+            temp_jp_def = temp_card.jap_def.reduce((accumulator, current) => {
+                return accumulator + "\n\n" + current
+            })
+        }
+        console.log("New jap_def: ", temp_jp_def)
+        console.log("New eng_def: ", temp_en_def)
     }
+
+    
 }
 
-function get_components({kanji}) {
+function get_components(kanji) {
     let container = []
-    temp_jp_def.match(/[\u4e00-\u9faf]/)
+    console.log(kanji)
     for (character of kanji) {
         if(character.match(/[\u4e00-\u9faf]/)) {
             container.push(character)
@@ -541,31 +612,105 @@ deck_btn.addEventListener('click', () => {
     ipcRenderer.send('load-deck')
 })
 
-prio_1.addEventListener('mouseenter', (event) => {
-    event.target.classList.toggle('active')
-})
+for(btn of prio_btns) {
 
-prio_1.addEventListener('mouseleave', (event) => {
-    event.target.classList.toggle('active')
-})
+    // Setup procedure. Give active class to buttons that match priority level
+    if(parseInt(btn.id.split('-')[1]) <= priority) {
+        btn.classList.toggle('active')
+    }
+    
+    // Light up any prio btns above the current priority level during mouse enter
+    btn.addEventListener('mouseenter', (event) => {
+        // Index of prio btn (1 to 5) comes from html id (id="prio-x")
+        const index = event.target.id.split('-')[1]
+        console.log('Index: ', index)
+        for(let i = 1; i <= index; i++) {
+            console.log('')
+            if(i > priority) {
+                prio_btns[i - 1].classList.toggle('active')
+            }
+        }
+    })
+
+    // Turn off any prio btns above the current prio level after mouse leave
+    btn.addEventListener('mouseleave', (event) => {
+        const index = event.target.id.split('-')[1]
+        for(let i = 1; i <= index; i++) {
+            if(i > priority) {
+                prio_btns[i - 1].classList.toggle('active')
+            }
+        }
+    })
+
+    // Update prio on click and update prio btns with active class
+    btn.addEventListener('click', (event) => {
+        priority = parseInt(event.target.id.split('-')[1])
+        update_prio_btn_class()
+    })
+}
+
+/**
+ * Remove the active class from all the buttons that had it and are above the recently updated priority level
+ */
+function update_prio_btn_class() {
+    for(btn of prio_btns) {
+        if(parseInt(btn.id.split('-')[1]) > priority && btn.classList.contains('active')) {
+            btn.classList.toggle('active')
+        }
+    }
+}
+
+/**
+ * Set editing to true. Remove read only from definition text
+ */
+function engage_editing() {
+    console.log("Editing engaged.")
+    editing_notes = true
+    definition_text.removeAttribute('readonly')
+}
+
+/**
+ * Set editing to false. Set definition text to read only. Update notes
+ */
+function resolve_editing() {
+    console.log("Editing resolved.")
+    editing_notes = false
+    notes = definition_text.value
+    definition_text.setAttribute('readonly', 'true')
+    console.log("New notes: ", notes)
+    temp_card.notes = notes
+    ipcRenderer.send('new-card', temp_card)
+}
 
 notes_btn.addEventListener('click', () => {
     notes_btn.classList.toggle('active')
-    if(notes_btn.classList.contains('active')) {
-        definition_text.value = card.notes
+    if(!editing_notes) {
+        // Engage note editing. The user can leave by switching language, if trigger is true then
+        // current notes should be saved in that case as well
+        engage_editing()
+        definition_text.value = notes
+        // In case notes were blank
+        definition_text.placeholder = 'Notes'
     } else {
-        update_definition()
+        definition_text.placeholder = 'Definition'
+        // Resolve editing 1/2. Also possible in switch_lan()
+        resolve_editing()
+        fill_definition(temp_card)
     }
     
 })
 
-flip_btn.addEventListener('click', flip_card)
+function flip() {
+    card.flip_card(card_container)
+}
+
+flip_btn.addEventListener('click', flip)
 edit_btn.addEventListener('click', edit_card)
 next_btn.addEventListener('click', get_card)
 add_btn.addEventListener('click', add_card)
 confirm_btn.addEventListener('click', confirm_edit)
 cancel_btn.addEventListener('click', reset_and_request)
-jp_switch.addEventListener('click', switch_to_JP)
-en_switch.addEventListener('click', switch_to_EN)
+jp_switch.addEventListener('click', switch_lan)
+en_switch.addEventListener('click', switch_lan)
 
 module.exports = fill_card

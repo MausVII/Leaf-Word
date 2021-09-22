@@ -48,14 +48,14 @@ function get_pitch_spans({pitch, hiragana}) {
     return temp_container;
 }
 
-function fill_definition({en, jp}) {
+function fill_definition({eng_def, jap_def}) {
     if (jp_switch.classList.contains('active')) {
-        let definition = jp.reduce((accumulator, current) => {
+        let definition = jap_def.reduce((accumulator, current) => {
             return accumulator + "\n\n" + current
         })
         definition_text.value = definition
     } else {
-        let definition = en.reduce((accumulator, current) => {
+        let definition = eng_def.reduce((accumulator, current) => {
             return accumulator + "\n\n" + current
         })
         definition_text.value = definition
@@ -71,7 +71,7 @@ function switch_language() {
 ipcRenderer.on('quick-card-delivery', (event, response) => {
     card = response
     kanji_in.value = card.kanji
-    class_in.value = card.classification
+    class_in.value = card.tags
     get_pitch_spans(card).forEach( (pitch_span) => {
         pitch_div.append(pitch_span)
     })
