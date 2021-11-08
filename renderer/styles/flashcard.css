@@ -1,4 +1,3 @@
-
 :root{
     --highlight:  #d49c6b;
     --base:  #f6fafb;
@@ -27,6 +26,10 @@
     list-style: none;
 }
 
+html {
+    overflow-x: hidden;
+}
+
 button {
     padding: 3px 10px;
     letter-spacing: 1px;
@@ -40,6 +43,9 @@ button {
 header {
     margin-top: 15px;
     display: flex;
+    justify-content: left;
+    flex-wrap: nowrap;
+    border-bottom: 3px solid var(--highlight);
 }
 
 .nav-elements {
@@ -47,18 +53,18 @@ header {
     width: 85vw;
     display: flex;
     justify-content: flex-start;
-    border-bottom: 3px solid var(--highlight);
+    
     align-items: flex-end;
 }
 
+
 #icon-title {
+    white-space: nowrap;
     text-align: center;
-    height: 5vh;
-    width: 15vw;
     padding: 0 1vw;
     color: var(--base);
     font-size: 2rem;
-    border-bottom: 3px solid var(--highlight);
+    /* border-bottom: 3px solid var(--highlight); */
 }
 
 .nav-elements button {
@@ -313,4 +319,14 @@ header {
 
 #card-back.active {
     transform: translateX(-100%);
+}
+
+@media (max-width: 580px) {
+    .nav-elements {
+        display: none;
+    }
+
+    header {
+        justify-content: center;
+    }
 }

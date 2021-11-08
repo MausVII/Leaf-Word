@@ -71,7 +71,7 @@ function createWindow() {
     // Manage new window state
     state.manage(mainWindow)
     // Remove when the time has come
-    mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
 
     mainWindow.webContents.on('did-finish-load', e => {
         new_dic.count({}, function (err, count) {
