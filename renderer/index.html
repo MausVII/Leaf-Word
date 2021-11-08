@@ -30,7 +30,12 @@
 
             <div id='card-back'>
                 <form id="word-info">
-                    <input type="text" id="word" placeholder="Kanji" readonly>
+                    <div id="kanji-variants">
+                        <img id="left-arrow" src="../icons/arrow-left-short.svg"/>
+                        <input type="text" id="word" placeholder="Kanji" readonly>
+                        <img id="right-arrow" src="../icons/arrow-right-short.svg"/>
+                    </div>
+                    
                     <input type="text" id="classification" placeholder="Classification" readonly>
                     <!-- The Hiragana input will be removed if there is pitch info available for the respective word-->
                     <input type="text" id="hiragana" placeholder="Hiragana" readonly>
@@ -52,8 +57,9 @@
                             <button id="JP-switch" class="active">JP</button>
                         </div>
                     </div>
-                    
-                    <textarea name="def" id="definition" placeholder="Definition" cols="30" rows="12" readonly></textarea>
+                    <div id="text-container">
+                        <textarea name="def" id="definition" placeholder="Definition" cols="30" rows="12" readonly></textarea>
+                    </div>
                 </form>
                 <div id="back-btns">
                     <button id="edit-btn" class="card-btn">Edit</button>
@@ -65,8 +71,7 @@
     </div>
 
     <script src="../components/shared/shared_func.js"></script>
-    <script>
-        require('./renderer.js')
+    <script src="../components/card.js">
     </script>
   </body>
 </html>

@@ -3,6 +3,7 @@ const DataStore = require('nedb');
 const windowStatekeeper = require('electron-window-state')
 
 // Dictionary database of all words
+let queueCard = '激励'
 let dictionary;
 let new_dic;
 // String that represents the current filter
@@ -90,8 +91,15 @@ function createWindow() {
                 })
                 
                
-                new_dic.find({kanji: '見る'}, function (error, docs) {
+                new_dic.find({kanji: queueCard}, function (error, docs) {
                     if (!error) {
+                        // if(docs[0].priority == undefined) {
+                        //     new_dic.update({kanji: docs[0].kanji}, { $set: {priority: 0} }, {}, (err, numReplaced) => {
+                        //         console.log("Replaced", numReplaced)
+                        //     })
+                        // } else {
+                        //     console.log("Prio already set.")
+                        // }
                         mainWindow.webContents.send('card-delivery', docs[0])
                     } else {
                         alert(error)
@@ -216,8 +224,30 @@ ipcMain.handle('card-query', async (event, query, number) => {
     return result
 })
 
-ipcMain.on('card-request', (err, card) => {
+ipcMain.on('contextCard', (event, card) => {
+    console.log(card)
+    queueCard = card
+    contextMenu.close()
+    mainWindow.loadFile('./renderer/index.html')
+    
+})
 
+ipcMain.on('searchRelated', async (event, target_kanji) => {
+    related = []
+
+    new_dic.findOne({kanji: target_kanji}, (error, doc) => {
+        let components = doc.components
+
+        console.log(components)
+        new_dic.find( { components: { $in: components } }, (error, docs) => {
+            mainWindow.webContents.send('table-delivery', docs)
+            contextMenu.close()
+        })
+    })
+    
+})
+
+ipcMain.on('card-request', (err, card) => {
     if(filter !== "") {
         switch (filter) {
             case "noun":
@@ -295,6 +325,26 @@ ipcMain.on('card-request', (err, card) => {
     }
 })
 
+ipcMain.on('update-prio', (event, kanji, priotity) => {
+    new_dic.update({kanji: kanji}, {$set: {priority: priotity}}, {}, (error, numReplaced, affectedDoc) => {
+        if(!error) {
+            console.log("Updated priotity on: ", kanji, " to ", priotity)
+        } else {
+            console.log(error)
+        }
+    })
+})
+
+ipcMain.on('update-notes', (event, kanji, notes) => {
+    new_dic.update({kanji: kanji}, {$set: {notes: notes}}, {}, (error) => {
+        if(!error) {
+            console.log("Updated notes on: ", kanji, " to ", notes)
+        } else {
+            console.log(error)
+        }
+    })
+})
+
 ipcMain.handle('table-request', (event, query) => {
     console.log("Query: ", query)
     results = []
@@ -306,7 +356,7 @@ ipcMain.handle('table-request', (event, query) => {
             mainWindow.webContents.send('table-delivery', results)
         })
     } else {
-        new_dic.find({}, (err, docs) => {
+        new_dic.find({}).sort({updatedAt: -1}).exec((err, docs) => {
             mainWindow.webContents.send('table-delivery', docs)
         })
     }
@@ -379,6 +429,36 @@ ipcMain.on('alert-win', (err, message) => {
     })
 })
 
+ipcMain.on('open-menu', (event, kanji) => {
+    contextMenu = new BrowserWindow({
+        parent: mainWindow,
+        width: 150,
+        height: 180,
+        frame: false,
+        show: false,
+        modal: true,
+        resizable: false,
+        webPreferences: {
+            contextIsolation: false,
+            nodeIntegration: true
+        }
+    })
+
+    contextMenu.loadFile('components/contextMenu/menu.html')
+
+    contextMenu.on('ready-to-show', () => {
+        let pos = screen.getCursorScreenPoint()
+        contextMenu.setPosition(pos.x, pos.y)
+        contextMenu.show()
+
+        contextMenu.webContents.send('context-target', kanji)
+    })
+
+    contextMenu.on('closed', () => {
+        contextMenu = null;
+    })
+})
+
 ipcMain.handle('count-kanji', async () => {
     let count = await new Promise((resolve, reject) => {
         new_dic.count({}, (error, count) => {
@@ -399,6 +479,10 @@ ipcMain.on('close-filter', () => {
 
 ipcMain.on('close-quickwin', () => {
     quickWin.close();
+})
+
+ipcMain.on('close-context', () => {
+    contextMenu.close()
 })
 
 ipcMain.on('close-alert', () => {
@@ -446,7 +530,7 @@ ipcMain.on('update-filters', (err, new_filter) => {
     }
 })
 
-ipcMain.on('load-deck', () => {
+ipcMain.on('open-flashcard', () => {
     mainWindow.loadFile('./renderer/index.html')
 })
 

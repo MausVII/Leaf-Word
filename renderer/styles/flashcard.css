@@ -23,7 +23,7 @@
     padding: 0;
     background-color: var(--background);
     text-decoration: none;
-    font-family: "Roboto", sans-serif;
+    font-family: "Kosugi", sans-serif;
     list-style: none;
 }
 
@@ -105,7 +105,7 @@ header {
 }
 
 #card-back {
-    justify-content: space-between;
+    justify-content: space-around;
     position: absolute;
     top: 0;
     left: 100%;
@@ -123,15 +123,35 @@ header {
 
 #word-info {
     background-color: inherit;
+    flex-grow: 2;
 }
 
 #card-back input {
     width: 100%;
+    margin: 4px 0;
     background-color: var(--base);
     border: none;
     border-bottom: 1px solid var(--highlight);
     padding: 10px;
     color: var(--background);
+}
+
+#card-back input.error {
+    border: 1px solid red;
+}
+
+#kanji-variants {
+    display: flex;
+    background-color: inherit;
+    
+}
+
+#left-arrow, #right-arrow {
+    margin: 4px 0;
+    width: 30px;
+    background-color: inherit;
+    border-bottom: 1px solid var(--highlight);
+    transition: 0.3s all ease-in;
 }
 
 #card-back #word {
@@ -152,7 +172,7 @@ header {
     letter-spacing: 1px;
 }
 
-#card-back #pitch_div {
+#card-back #pitch-div {
     width: 100%;
     background-color: var(--base);
     border-bottom: 1px solid var(--highlight);
@@ -163,11 +183,16 @@ header {
     justify-content: center;
 }
 
-#card-back #pitch_div span {
+#card-back #pitch-div span {
     background-color: var(--base);
     font-family: 'Kosugi', sans-serif;
     font-size: 20px;
     padding: 0.5px;
+}
+
+#pitch-input {
+    text-align: center;
+    font-size: 2rem;
 }
 
 #meter-lan-container {
@@ -223,15 +248,25 @@ header {
     color: var(--base);
 } 
 
+#text-container {
+    background-color: inherit;
+    padding: 0;
+    height: 100%;
+}
+
 #card-back #definition {
     background-color: var(--base);
     resize: none;
     /* width: 100%; */
-    height: 38vh; 
+    height: 100%; 
     overflow: auto;
     border: none;
     font-family: 'Kosugi', sans-serif;
     font-size: 1.5em;
+}
+
+#card-back #definition.error {
+    border: 1px solid red;
 }
 
 #card-back #back-btns {
@@ -258,12 +293,17 @@ header {
     border-bottom: 10px solid var(--highlight);
 }
 
+#left-arrow:hover, #right-arrow:hover {
+    cursor: pointer;
+    border: 1px solid var(--highlight);
+}
+
 .card-btn:hover {
     border: 3px solid var(--highlight);
 }
 
-input:focus {
-    border: none;
+#definition:focus {
+    outline: none;
 }
 
 /* /////////////// Card Flip CSS ///////////////// */

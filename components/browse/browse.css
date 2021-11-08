@@ -20,7 +20,7 @@
     padding: 0;
     background-color: var(--background);
     text-decoration: none;
-    font-family: "Roboto", sans-serif;
+    font-family: "Kosugi", sans-serif;
     list-style: none;
 }
 
@@ -161,6 +161,7 @@ form {
     background-color: var(--base);
     font-family: 'Kosugi', sans-serif;
     font-size: 2rem;
+    font-weight: 300;
     justify-content: center;
     align-items: center;
     margin: 8px 8px;

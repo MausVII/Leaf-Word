@@ -1,0 +1,76 @@
+:root{
+    --highlight:  #d49c6b;
+    --base:  #f6fafb;
+    --background: #252b31;
+}
+
+@font-face {
+    font-family: "Kosugi";
+    src: url("../../renderer/styles/fonts/Kosugi-Regular.ttf");
+}
+
+@font-face {
+    font-family: "Roboto";
+    src: url("../../renderer/styles/fonts/Roboto-Regular.ttf");
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    background-color: var(--base);
+    text-decoration: none;
+    font-family: "Kosugi", sans-serif;
+    list-style: none;
+}
+
+#top-border {
+    height: 20px;
+    width: 100%;
+    background-color: var(--highlight);
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 4px;
+}
+
+button {
+    padding: 2px;
+    border: none;
+    letter-spacing: 1px;
+    background-color: var(--base);
+    text-align: left;
+    padding: 4px 0;
+    width: 100%;
+    font-family: 'Kosugi', sans-serif;
+    font-size: 14px;
+    color: var(--background);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#close {
+    background-color: var(--base);
+    color: var(--background);
+    text-align: center;
+    font-size: 1.3rem;
+    margin: 8px;
+    padding: 4px;
+    border-bottom: 3px solid var(--highlight);
+    justify-self: flex-end;
+    align-self: center;
+    transition: all 0.3s ease;
+}
+
+button:hover, button.active {
+    background-color: var(--highlight);
+    color: var(--base)
+}
+
+#close:hover {
+    border: 3px solid var(--highlight);
+}

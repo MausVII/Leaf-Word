@@ -1,5 +1,6 @@
 const {ipcRenderer} = require('electron');
 
+const deck_btn = document.querySelector('#deck-btn')
 const table = document.querySelector('#browse-table')
 const page_input = document.querySelector('#page-size')
 const search_bar = document.querySelector('#search-bar')
@@ -35,7 +36,6 @@ var kanji_count
 })()
 
 ipcRenderer.on('table-delivery', (err, cards) => {
-
     while (table.hasChildNodes()) {
         table.firstChild.remove()
     }
@@ -63,6 +63,11 @@ ipcRenderer.on('table-delivery', (err, cards) => {
             ipcRenderer.send('quick-card', event.target.innerHTML)
         })
 
+        kanji_div.addEventListener('contextmenu', (event) => {
+            console.log(event.target.innerHTML)
+            ipcRenderer.send('open-menu', event.target.innerHTML)
+        })
+
         table.append(kanji_div)
     }  
 })
@@ -76,6 +81,10 @@ async function getKanjiCount() {
 ipcRenderer.on('kanji-count', (event, count) => {
     kanji_count = count
     total_count_input.value = count
+})
+
+deck_btn.addEventListener('click', () => {
+    ipcRenderer.send('open-flashcard')
 })
 
 search_btn.addEventListener('click', (event) => {
