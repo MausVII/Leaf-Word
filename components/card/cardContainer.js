@@ -115,7 +115,7 @@ class ContainerCard {
         }
     }
 
-    enterEditMode = () => {
+    enterEditMode() {
         this.clear()
         this.removeArrows()
         this.removeEditNextAddBtns()
@@ -126,7 +126,7 @@ class ContainerCard {
         this.hiragana.after(this.pitchInput)
     }
 
-    switchLan = () => {
+    switchLan() {
         this.japBtn.classList.toggle('active')
         this.engBtn.classList.toggle('active')
 

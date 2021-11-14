@@ -5,9 +5,11 @@ const table = document.querySelector('#browse-table')
 const page_input = document.querySelector('#page-size')
 const search_bar = document.querySelector('#search-bar')
 const search_btn = document.querySelector('#search-btn')
+const pageSlider = document.querySelector('#page-slider')
 const first_slider = document.querySelector('#first-slider')
 const last_slider = document.querySelector('#last-slider')
 const total_count_input = document.querySelector("#total-count")
+const messageBox = document.querySelector('#message-text')
 
 var page_size = 50
 var current_page = 1
@@ -36,6 +38,23 @@ var kanji_count
 })()
 
 ipcRenderer.on('table-delivery', (err, cards) => {
+    messageBox.parentElement.style.display = 'initial'
+    table.style.display = 'flex'
+    pageSlider.style.display = 'flex'
+    if(cards.length >= 1) {
+        messageBox.innerText = `Found ${cards.length} results`
+        setTimeout(() => {
+            messageBox.parentElement.style.display = 'none'
+        }, 3000)
+    } else {
+        messageBox.innerText = `Found 0 results`
+        table.style.display = 'none'
+        pageSlider.style.display = 'none'
+        setTimeout(() => {
+            messageBox.parentElement.style.display = 'none'
+        }, 3000)
+    }
+
     while (table.hasChildNodes()) {
         table.firstChild.remove()
     }

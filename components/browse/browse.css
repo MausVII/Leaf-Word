@@ -94,17 +94,24 @@ form {
     padding: 8px 0;
 }
 
+::selection {
+    background-color: var(--highlight);
+}
+
 #page-size {
     background-color: var(--base);
+    border: none;
     color: black;
     width: 10%;
     text-align: center;
     font-family: 'Kosugi', sans-serif;
     font-size: 1.5rem;
     padding: 4px;
+    margin: 0 4px 0 0;
 }
 
 #total-count { 
+    border: none;
     background-color: var(--base);
     color: black;
     width: 10%;
@@ -112,6 +119,7 @@ form {
     font-family: 'Kosugi', sans-serif;
     font-size: 1.5rem;
     padding: 4px;
+    margin: 0 4px;
 }
 
 #count-separator {
@@ -121,26 +129,37 @@ form {
     font-family: 'Kosugi', sans-serif;
     font-size: 1.5rem;
     padding: 4px;
+    margin: 0 4px;
 }
 
 #search-bar {
+    border: none;
     background-color: var(--base);
     width: 70%;
     color: black;
     font-family: 'Kosugi', sans-serif;
     font-size: 1.5rem;
     padding: 4px;
-    margin: 0 5px;
+    margin: 0 4px;
+}
+
+#page-size:focus, #search-bar:focus {
+    outline: 3px solid var(--highlight);
+}
+
+#total-count:focus {
+    outline: none;
 }
 
 #search-btn {
+    border: none;
     background-color: var(--base);
     color: black;
     border: none;
     font-family: 'Kosugi', sans-serif;
     font-size: 1.5rem;
     padding: 4px;
-    margin: 0 5px;
+    margin: 0 0 0 4px;
 }
 
 #search-btn:hover {
@@ -160,7 +179,7 @@ form {
 .kanji-cell {
     background-color: var(--base);
     font-family: 'Kosugi', sans-serif;
-    font-size: 2rem;
+    font-size: 1.5em;
     font-weight: 300;
     justify-content: center;
     align-items: center;
@@ -201,6 +220,17 @@ form {
 }
 
 .kanji-cell:hover {
-    border-bottom: 3px solid var(--highlight);
+    outline: 3px solid var(--highlight);
     cursor: pointer;
+}
+
+#message-area {
+    width: 100%;
+    margin: 10px;
+    background-color: var(--base);
+    padding: 4px;
+}
+
+#message-text {
+    background-color: inherit;
 }

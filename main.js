@@ -3,7 +3,7 @@ const DataStore = require('nedb');
 const windowStatekeeper = require('electron-window-state')
 
 // Dictionary database of all words
-let queueCard = '激励'
+let queueCard = '空く'
 let dictionary;
 let new_dic;
 // String that represents the current filter
@@ -33,7 +33,7 @@ function createWindow() {
         width: state.width,
         height: state.height,
         minHeight: 900,
-        child: filterWindow,
+        // child: filterWindow,
         webPreferences: {
             contextIsolation: false,
             nodeIntegration: true
@@ -71,7 +71,7 @@ function createWindow() {
     // Manage new window state
     state.manage(mainWindow)
     // Remove when the time has come
-    //mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
 
     mainWindow.webContents.on('did-finish-load', e => {
         new_dic.count({}, function (err, count) {
