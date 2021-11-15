@@ -22,20 +22,20 @@ class ContainerCard {
         this.pitchInput.addEventListener('blur', event => this.removeErrorHighlight(event.target))
         this.textArea.addEventListener('blur', event => this.removeErrorHighlight(event.target))
 
-        this.flipBtn.addEventListener('click', this.flip)
+        this.flipBtn.addEventListener('click', () => this.flip())
     }
 
-    flip = () => {
+    flip() {
         this.front.classList.toggle('active')
         this.back.classList.toggle('active')
     }
 
-    handleCancel = () => {
+    handleCancel() {
         this.reset()
         this.flip()
     }
 
-    clear = () => {
+    clear() {
         this.frontKanji.innerText = ""
         this.kanji.value = ""
         this.tags.value = ""
@@ -66,7 +66,7 @@ class ContainerCard {
         this.backBtns.append(this.editBtn, this.nextBtn, this.addBtn)
     }
 
-    fillCard = (card, editMode) => {
+    fillCard(card, editMode) {
         this.frontKanji.innerText = card.kanji
         this.kanji.value = card.kanji
         this.tags.value = card.tags
@@ -85,15 +85,15 @@ class ContainerCard {
         this.fillDefinition(card)
     }
 
-    fillHiragana = ({hiragana}) => {
+    fillHiragana({hiragana}) {
         this.hiragana.value = hiragana
     }
 
-    fillPitch = ({pitch}) => {
+    fillPitch({pitch}) {
         this.pitch.value = pitch
     }
 
-    fillDefinition = ({eng_def, jap_def}) => {
+    fillDefinition({eng_def, jap_def}) {
         if(this.getLang() === "jap") {
             if(typeof jap_def === 'string') {
                 this.textArea.value = jap_def
@@ -137,7 +137,7 @@ class ContainerCard {
         }
     }
 
-    errorHighlight = (component) => {
+    errorHighlight(component) {
         switch (component) {
             case "kanji":
                 console.log("case triggered")
@@ -160,59 +160,59 @@ class ContainerCard {
         }
     }
 
-    removeErrorHighlight = (target) => {
+    removeErrorHighlight(target) {
         target.classList.remove('error')
     }
 
-    removeReadonly = () => {
+    removeReadonly() {
         this.kanji.removeAttribute('readonly')
         this.tags.removeAttribute('readonly')
         this.hiragana.removeAttribute('readonly')
         this.textArea.removeAttribute('readonly')
     }
 
-    makeReadonly = () => {
+    makeReadonly() {
         this.kanji.setAttribute('readonly', 'true')
         this.tags.setAttribute('readonly', 'true')
         this.hiragana.setAttribute('readonly', 'true')
         this.textArea.setAttribute('readonly', 'true')
     }
 
-    isReadonly = () => {
+    isReadonly() {
         return this.textArea.hasAttribute('readonly')
     }
 
-    makeTextAreaReadonly = () => {
+    makeTextAreaReadonly() {
         this.textArea.setAttribute('readonly', true)
     }
 
-    removeTextAreaReadonly = () => {
+    removeTextAreaReadonly() {
         this.textArea.removeAttribute('readonly')
     }
 
-    appendConfirmCancelBtns = () => {
+    appendConfirmCancelBtns() {
         this.backBtns.append(this.cancelBtn)
         this.backBtns.append(this.confirmBtn)
     }
 
-    removeConfirmCancelBtns = () => {
+    removeConfirmCancelBtns() {
         this.cancelBtn.remove()
         this.confirmBtn.remove()
     }
 
-    appendEditNextAddBtns = () => {
+    appendEditNextAddBtns() {
         this.backBtns.append(this.editBtn)
         this.backBtns.append(this.nextBtn)
         this.backBtns.append(this.addBtn)
     }
 
-    removeEditNextAddBtns = () => {
+    removeEditNextAddBtns() {
         this.editBtn.remove()
         this.nextBtn.remove()
         this.addBtn.remove()
     }
 
-    getData = () => {
+    getData() {
         let kanji = this.kanji.value
         let hiragana = this.hiragana.value
         let tags = this.tags.value
@@ -220,34 +220,34 @@ class ContainerCard {
         return {kanji, hiragana, tags}
     }
 
-    getTextData = () => {
+    getTextData() {
         return this.textArea.value
     }
 
-    updatePlaceholder = (text) => {
+    updatePlaceholder(text) {
         this.textArea.placeholder = text
     }
 
-    updateKanji = (newKanji) => {
+    updateKanji(newKanji) {
         this.kanji.value = newKanji
     }
 
-    getPitch = () => {
+    getPitch() {
         return this.pitchInput.value
     }
 
-    getLang = () => {
+    getLang() {
         return this.japBtn.classList.contains('active') ? 'jap' : 'eng'
     }
 
-    getVariants = () => {
+    getVariants() {
         let variants = this.textArea.value.match(/(?<=\$).*(?=\$)/g)
         if (variants) {
             return variants[0]
         } else return null
     }
 
-    getPitchSpans = ({pitch, hiragana}) => {
+    getPitchSpans({pitch, hiragana}) {
         if (pitch.length == 0) throw "No pitch to get?"
 
         var temp_container = []
@@ -277,7 +277,7 @@ class ContainerCard {
         return temp_container;
     }
 
-    colorPrioBtns = (priority) => {
+    colorPrioBtns(priority) {
         for (const prioBtn of this.prioMeter.children) {
             if(parseInt(prioBtn.id.split('-')[1]) <= priority) {
                 prioBtn.classList.add('active')
@@ -285,7 +285,7 @@ class ContainerCard {
         }
     } 
 
-    updatePrioBtns = (priority) => {
+    updatePrioBtns(priority) {
         for (const prioBtn of this.prioMeter.children) {
             if(parseInt(prioBtn.id.split('-')[1]) > priority && prioBtn.classList.contains('active')) {
                 prioBtn.classList.toggle('active')
@@ -313,49 +313,49 @@ class ContainerCard {
         }
     }
 
-    appendArrows = () => {
+    appendArrows() {
         this.kanji.before(this.leftArrow)
         this.kanji.after(this.rightArrow)
     }
 
-    removeArrows = () => {
+    removeArrows() {
         this.leftArrow.remove()
         this.rightArrow.remove()
     }
 
-    getJapBtn = () => {
+    getJapBtn() {
         return this.japBtn
     }
 
-    getEngBtn = () => {
+    getEngBtn() {
         return this.engBtn
     }
 
-    getEditBtn = () => {
+    getEditBtn() {
         return this.editBtn
     }
 
-    getNextBtn = () => {
+    getNextBtn() {
         return this.nextBtn
     }
 
-    getAddBtn = () => {
+    getAddBtn() {
         return this.addBtn
     }
 
-    getConfirmBtn = () => {
+    getConfirmBtn() {
         return this.confirmBtn
     }
 
-    getCancelBtn = () => {
+    getCancelBtn() {
         return this.cancelBtn
     }
 
-    getNotesBtn = () => {
+    getNotesBtn() {
         return this.notesBtn
     }
 
-    getPrioBtns = () => {
+    getPrioBtns() {
         let buttons = []
         for (const btn of this.prioMeter.children) {
             buttons.push(btn)
@@ -364,11 +364,11 @@ class ContainerCard {
         return buttons
     }
 
-    getLeftArrowBtn = () => {
+    getLeftArrowBtn() {
         return this.leftArrow
     }
 
-    getRightArrowBtn = () => {
+    getRightArrowBtn() {
         return this.rightArrow
     }
 }
