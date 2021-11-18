@@ -214,6 +214,10 @@ form {
     font-size: 1.5rem;
 }
 
+#page-slider span.active  {
+    text-decoration: underline;
+}
+
 #page-slider span:hover {
     color: var(--highlight);
     cursor: pointer;

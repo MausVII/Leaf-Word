@@ -84,7 +84,6 @@ ipcRenderer.on('card-delivery', (e, card) => {
     for (const variant of card.variants) {
         variantsRot.push(variant)
     }
-    console.log("VariantsRot: ", variantsRot)
     temp_card = card
 })
 
@@ -263,9 +262,7 @@ function getDefinition(text) {
     // Lines starting with spaces
     unprocessedText = unprocessedText.replace(/^\s/gm, '')
     // Removes double new lines
-    console.log("Before: ", unprocessedText)
     unprocessedText = unprocessedText.replace("\n\n", '\n')
-    console.log("After: ", unprocessedText)
     // Removes new lines and returns
     unprocessedText = unprocessedText.replace(/[\r\n]+/g, '|')
     for (const definition of unprocessedText.split('|')) {

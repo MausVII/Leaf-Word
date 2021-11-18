@@ -7,42 +7,99 @@ const search_bar = document.querySelector('#search-bar')
 const search_btn = document.querySelector('#search-btn')
 const pageSlider = document.querySelector('#page-slider')
 const first_slider = document.querySelector('#first-slider')
-const last_slider = document.querySelector('#last-slider')
+const lastSlider = document.querySelector('#last-slider')
 const total_count_input = document.querySelector("#total-count")
 const messageBox = document.querySelector('#message-text')
 
-var page_size = 50
-var current_page = 1
-const max_pages = 10
-var kanji_count
+let pageSize = 50
+let previousPage = 0
+let currentPage = 1
+const maxPages = 10
+let kanjiCount
 
 ;(() => {
     ipcRenderer.invoke('table-request')
-    page_input.value = page_size
+    page_input.value = pageSize
 
-    for (let j = 1; j <= ( kanji_count / page_size ) || j <= max_pages; j++) {
-        var slider_span = document.createElement("span")
-        slider_span.id = "page-slider-" + j
-        slider_span.innerHTML = j
+    for (let j = 1; j <= ( kanjiCount / pageSize ) || j <= maxPages; j++) {
+        let sliderSpan = document.createElement("span")
+        sliderSpan.id = "page-slider-" + j
+        sliderSpan.innerHTML = j
 
-        slider_span.addEventListener('click', (event) => {
-            current_page = parseInt(event.target.innerHTML)
-            console.log(current_page)
+        sliderSpan.addEventListener('click', (event) => {
+            previousPage = currentPage
+            currentPage = parseInt(event.target.innerHTML)
             ipcRenderer.invoke('table-request')
         })
 
-        last_slider.before(slider_span)
+        lastSlider.before(sliderSpan)
     }
 
-    kanji_count = getKanjiCount()
+    
+    kanjiCount = getKanjiCount()
 })()
 
 ipcRenderer.on('table-delivery', (err, cards) => {
     messageBox.parentElement.style.display = 'initial'
     table.style.display = 'flex'
     pageSlider.style.display = 'flex'
-    if(cards.length >= 1) {
-        messageBox.innerText = `Found ${cards.length} results`
+    
+    showNumFound(cards.length)
+
+    while (table.hasChildNodes()) {
+        table.firstChild.remove()
+    }
+
+    for (let i = 0; i <= pageSize && i < cards.length; i++) {
+        var kanjiDiv = document.createElement("div")
+        kanjiDiv.classList.toggle("kanji-cell")
+        
+        kanjiDiv.id = cards[i + ((currentPage - 1) * pageSize)].kanji
+
+        var kanji_span = document.createElement("abbr")
+        // var hiragana_span = document.createElement("span")
+
+        kanji_span.innerHTML = cards[i + ((currentPage - 1) * pageSize)].kanji
+        kanji_span.title = cards[i + ((currentPage - 1) * pageSize)].hiragana
+        // hiragana_span.innerHTML = card.hiragana
+
+        kanji_span.classList.toggle("kanji-span")
+        // hiragana_span.classList.toggle("hiragana-span")
+
+        kanjiDiv.append(kanji_span)
+        // kanji_div.append(hiragana_span)
+
+        kanjiDiv.addEventListener('click', (event) => {
+            ipcRenderer.send('quick-card', event.target.innerHTML)
+        })
+
+        kanjiDiv.addEventListener('contextmenu', (event) => {
+            console.log(event.target.innerHTML)
+            ipcRenderer.send('open-menu', event.target.innerHTML)
+        })
+
+        table.append(kanjiDiv)
+    }  
+
+    updatePageSlider()
+})
+
+async function getKanjiCount() {
+    const result = await ipcRenderer.invoke('count-kanji')
+    console.log(result)
+    return result
+}
+
+const updatePageSlider = () => {
+    if(previousPage !== 0) {
+        document.querySelector(`#page-slider-${previousPage}`).classList.toggle('active')
+    }
+    document.querySelector(`#page-slider-${currentPage}`).classList.toggle('active')
+}
+
+const showNumFound = (length) => {
+    if(length >= 1) {
+        messageBox.innerText = `Found ${length} results`
         setTimeout(() => {
             messageBox.parentElement.style.display = 'none'
         }, 3000)
@@ -54,51 +111,10 @@ ipcRenderer.on('table-delivery', (err, cards) => {
             messageBox.parentElement.style.display = 'none'
         }, 3000)
     }
-
-    while (table.hasChildNodes()) {
-        table.firstChild.remove()
-    }
-
-    for (let i = 0; i <= page_size && i < cards.length; i++) {
-        var kanji_div = document.createElement("div")
-        kanji_div.classList.toggle("kanji-cell")
-        
-        kanji_div.id = cards[i + ((current_page - 1) * page_size)].kanji
-
-        var kanji_span = document.createElement("abbr")
-        // var hiragana_span = document.createElement("span")
-
-        kanji_span.innerHTML = cards[i + ((current_page - 1) * page_size)].kanji
-        kanji_span.title = cards[i + ((current_page - 1) * page_size)].hiragana
-        // hiragana_span.innerHTML = card.hiragana
-
-        kanji_span.classList.toggle("kanji-span")
-        // hiragana_span.classList.toggle("hiragana-span")
-
-        kanji_div.append(kanji_span)
-        // kanji_div.append(hiragana_span)
-
-        kanji_div.addEventListener('click', (event) => {
-            ipcRenderer.send('quick-card', event.target.innerHTML)
-        })
-
-        kanji_div.addEventListener('contextmenu', (event) => {
-            console.log(event.target.innerHTML)
-            ipcRenderer.send('open-menu', event.target.innerHTML)
-        })
-
-        table.append(kanji_div)
-    }  
-})
-
-async function getKanjiCount() {
-    const result = await ipcRenderer.invoke('count-kanji')
-    console.log(result)
-    return result
 }
 
 ipcRenderer.on('kanji-count', (event, count) => {
-    kanji_count = count
+    kanjiCount = count
     total_count_input.value = count
 })
 
