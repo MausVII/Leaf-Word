@@ -6,23 +6,24 @@
 
 @font-face {
     font-family: "Kosugi";
-    src: url("../renderer/styles/fonts/Kosugi-Regular.ttf");
+    src: url("../../fonts/Kosugi-Regular.ttf");
 }
 
-@font-face {
+/* @font-face {
     font-family: "Roboto";
-    src: url("../renderer/styles/fonts/Roboto-Regular.ttf");
-}
+    src: url("../../renderer/styles/fonts/Roboto-Regular.ttf");
+} */
 /* //////////////// Filter CSS //////////////////////// */
 * {
     margin: 0;
     padding: 0;
     border: none;
+    font-family: 'Kosugi', sans-serif;
 }
 
 #main {
     background-color: var(--base);
-    height: 400px;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -71,6 +72,11 @@
     transition: all 0.3s ease;
 }
 
+#filter button:hover, #filter button.active {
+    background-color: var(--highlight);
+    color: var(--base);
+}
+
 #close-filter {
     background-color: var(--base);
     color: var(--background);
@@ -84,12 +90,10 @@
     transition: all 0.3s ease;
 }
 
-/* /////////////// Filter Button Active CSS ///////////////// */
-#filter button:hover, #filter button.active {
-    background-color: var(--highlight);
-    color: var(--base);
-}
-
 #close-filter:hover {
     border: 3px solid var(--highlight);
 }
+
+/* /////////////// Filter Button Active CSS ///////////////// */
+
+

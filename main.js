@@ -29,10 +29,10 @@ function createWindow() {
     })
 
     mainWindow = new BrowserWindow({
+        autoHideMenuBar: true,
         x: state.x, y: state.y,
         width: state.width,
         height: state.height,
-        minHeight: 900,
         // child: filterWindow,
         webPreferences: {
             contextIsolation: false,
@@ -72,6 +72,7 @@ function createWindow() {
     state.manage(mainWindow)
     // Remove when the time has come
     mainWindow.webContents.openDevTools();
+    // mainWindow.setMenu(null)
 
     mainWindow.webContents.on('did-finish-load', e => {
         new_dic.count({}, function (err, count) {
@@ -365,7 +366,7 @@ ipcMain.handle('table-request', (event, query) => {
 ipcMain.on('request-filter-win', (err) => {
     filterWindow = new BrowserWindow({
         parent: mainWindow,
-        width: 500,
+        width: 300,
         height: 400,
         frame: false,
         show: false,
@@ -377,7 +378,7 @@ ipcMain.on('request-filter-win', (err) => {
         }
     })
 
-    filterWindow.loadFile('components/filter.html');
+    filterWindow.loadFile('components/filter/filter.html');
 
     // filterWindow.openDevTools()
     

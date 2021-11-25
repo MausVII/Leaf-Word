@@ -4,7 +4,7 @@ let card
 
 const close_btn = document.querySelector('#close-btn')
 const kanji_in = document.querySelector('#word')
-const class_in = document.querySelector('#classification')
+const class_in = document.querySelector('#tags')
 const pitch_div = document.querySelector('#pitch-div')
 const definition_text = document.querySelector('#definition')
 const jp_switch = document.querySelector('#JP-switch')

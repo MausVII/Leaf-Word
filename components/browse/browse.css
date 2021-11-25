@@ -6,22 +6,17 @@
 
 @font-face {
     font-family: "Kosugi";
-    src: url("../../renderer/styles/fonts/Kosugi-Regular.ttf");
+    src: url("../../fonts/Kosugi-Regular.ttf");
 }
 
-@font-face {
-    font-family: "Roboto";
-    src: url("../../renderer/styles/fonts/Roboto-Regular.ttf");
-}
+
 
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    background-color: var(--background);
     text-decoration: none;
-    font-family: "Kosugi", sans-serif;
-    list-style: none;
+    font-family: 'Kosugi', sans-serif;
 }
 
 body {
@@ -29,44 +24,57 @@ body {
     flex-wrap: nowrap;
     align-items: center;
     flex-direction: column;
+    background-color: var(--background);
 }
 
 header {
+    width: 100vw;
     margin-top: 15px;
+    margin-bottom: 15px;
     display: flex;
+    justify-content: left;
+    align-items: flex-end;
+    flex-wrap: nowrap;
+    border-bottom: 3px solid var(--highlight);
+}
+
+button {
+    padding: 3px 10px;
+    letter-spacing: 1px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#nav-bar {
+    width: 100%;
+    margin-left: 20px;
 }
 
 .nav-elements {
     height: 5vh;
-    width: 85vw;
     display: flex;
     justify-content: flex-start;
-    border-bottom: 3px solid var(--highlight);
+    list-style: none;
     align-items: flex-end;
 }
 
 #icon-title {
+    white-space: nowrap;
     text-align: center;
-    height: 5vh;
-    width: 15vw;
-    padding: 0 1vw;
+    padding: 3px 10px;
     color: var(--base);
     font-size: 2rem;
-    border-bottom: 3px solid var(--highlight);
 }
 
-/* ///////////////////////////// */
-
 .nav-elements button {
-    letter-spacing: 1px;
-    background-color: var(--base);
-    font-family: 'Kosugi', sans-serif;
-    cursor: pointer;
-    border: none;
     border-bottom: 10px solid var(--background);
     padding: 4px 6px;
     margin: 0 1vw;
-    transition: all 0.3s ease;
+}
+
+.nav-elements button:focus {
+    outline: none;
 }
 
 .nav-elements button:hover {
@@ -78,7 +86,7 @@ header {
 
 #main {
     width: 70%;
-    height: 80%;
+    height: fit-content;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -87,6 +95,7 @@ header {
 }
 
 form {
+    width: 100%;
     display: flex;
     flex-wrap: nowrap;
     align-self: flex-start;
@@ -133,6 +142,7 @@ form {
 }
 
 #search-bar {
+    flex-grow: 3;
     border: none;
     background-color: var(--base);
     width: 70%;
@@ -202,6 +212,7 @@ form {
 }
 
 #page-slider {
+    width: 100%;
     display: flex;
     flex-wrap: nowrap;
     justify-content: space-around;
@@ -237,4 +248,11 @@ form {
 
 #message-text {
     background-color: inherit;
+}
+
+@media (max-width: 500px), (orientation:portrait) {
+    #main {
+        width: 95vw;
+        height: fit-content;
+    }
 }

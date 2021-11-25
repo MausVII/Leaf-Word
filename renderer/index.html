@@ -2,9 +2,11 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    
-    <link rel="stylesheet" href="styles/flashcard.css">
-    <title>Leaf Word</title>
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <link rel="stylesheet" href="./index.css">
+    <title>LeafWord</title>
   </head>
   <body>
     <header>
@@ -14,7 +16,7 @@
                 <li><button id="deck-btn">&#8759  Decks</button></li>
                 <li><button id="browse-btn">&#8759  Browse</button></li>
                 <li><button id="filter-btn">&#8759  Filter</button></li>
-                <li><button>&#8759  Settings</button></li>
+                <li><button id="setting-btn">&#8759  Settings</button></li>
                 <li><button id='help-btn'>&#8759  Help</button></li>
             </ul>
         </nav>
@@ -24,7 +26,7 @@
         <!-- Card related segment-->
         <div id="cards">
             <div id='card-front' class="active">
-                <h1 id="kanji">八雲</h1>
+                <h1 id="kanji">言葉</h1>
                 <button id="flip-btn" class="card-btn">Flip</button>
             </div>
 
@@ -36,7 +38,7 @@
                         <img id="right-arrow" src="../icons/arrow-right-short.svg"/>
                     </div>
                     
-                    <input type="text" id="classification" placeholder="Classification" readonly>
+                    <input type="text" id="tags" placeholder="Tags" readonly>
                     <!-- The Hiragana input will be removed if there is pitch info available for the respective word-->
                     <input type="text" id="hiragana" placeholder="Hiragana" readonly>
                     <!-- Several spans will be added if there is pitch info available for the respective word-->
@@ -58,7 +60,7 @@
                         </div>
                     </div>
                     <div id="text-container">
-                        <textarea name="def" id="definition" placeholder="Definition" cols="30" rows="12" readonly></textarea>
+                        <textarea name="def" id="definition" placeholder="Definition" readonly></textarea>
                     </div>
                 </form>
                 <div id="back-btns">
@@ -70,8 +72,6 @@
         </div>
     </div>
 
-    <script src="../components/shared/shared_func.js"></script>
-    <script src="../components/card.js">
-    </script>
+    <script src="renderer.js"></script>
   </body>
 </html>

@@ -256,6 +256,7 @@ function getDefinition(text) {
     if(text.match(/(?<=\$).*(?=\$)/g)) {
         // Remove the variants string
         unprocessedText = unprocessedText.replace(/.(?<=\$).*(?=\$)./g, '')
+        
         // Single new line after variants string
         unprocessedText = unprocessedText.replace(/^\n/, '')
     }
