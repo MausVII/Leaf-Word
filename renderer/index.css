@@ -192,7 +192,7 @@ button {
     width: 30px;
     background-color: inherit;
     border-bottom: 1px solid var(--highlight);
-    transition: 0.3s all ease-in;
+    transition: 0.3s border-width ease-in;
 }
 
 #left-arrow:hover, #right-arrow:hover {
@@ -232,7 +232,7 @@ button {
 #card-back #pitch-div span {
     background-color: var(--base);
     font-family: 'Kosugi', sans-serif;
-    font-size: 1em;
+    font-size: 1.2em;
     padding: 0.5px;
 }
 
@@ -385,6 +385,7 @@ button {
     #card-front, #card-back {
         margin-top: 10px;
         width: 98vw;
+        max-width: 600px;
         height: 90vh;
     }
 }
